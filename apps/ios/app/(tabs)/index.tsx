@@ -8,7 +8,7 @@ import { Atmosphere } from "@/src/components/glass";
 import { MeetupCard } from "@/src/components/MeetupCard";
 import { PressableScale } from "@/src/components/motion";
 import { ScheduleNextCard } from "@/src/components/ScheduleNextCard";
-import { Body, Button, Card, Kicker, Title } from "@/src/components/ui";
+import { Body, Button, EmptyState, Kicker, Title } from "@/src/components/ui";
 import { paceLabels } from "@/src/domain/copy";
 import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
 import { daysUntil, getJoinedCircles, greeting, homePhase, intentionPace } from "@/src/domain/matching";
@@ -148,18 +148,14 @@ export default function TodayScreen() {
           )}
 
           {phase.kind === "waiting" && (
-            <Card>
-              <Text style={styles.intent}>{phase.circle.name} macht Pause</Text>
-              <Body muted style={{ marginTop: 8 }}>
-                {phase.circle.hostName} legt den nächsten Abend fest. Bis dahin reicht Warten — oder eine neue Einladung.
-              </Body>
-              <Button
-                label="Einladungen ansehen"
-                variant="secondary"
-                onPress={() => router.push("/(tabs)/entdecken")}
-                style={{ marginTop: 14 }}
-              />
-            </Card>
+            <EmptyState
+              kicker="Kurze Pause"
+              title={`${phase.circle.name} atmet durch`}
+              body={`${phase.circle.hostName} legt das nächste Treffen fest. Bis dahin darfst du warten — oder eine neue Einladung ansehen.`}
+              action={
+                <Button label="Einladungen ansehen" variant="secondary" onPress={() => router.push("/(tabs)/entdecken")} />
+              }
+            />
           )}
 
           {phase.kind === "invite" && (
@@ -179,20 +175,22 @@ export default function TodayScreen() {
           )}
 
           {phase.kind === "pause" && (
-            <Card>
-              <Text style={styles.intent}>Heute darfst du Pause machen</Text>
-              <Body muted style={{ marginTop: 8 }}>
-                {joined.length > 0
-                  ? "Kein offener Termin in deinen Kreisen."
-                  : "Unter Entdecken wartet vielleicht noch eine Einladung."}
-              </Body>
-              <Button
-                label={joined.length > 0 ? "Meine Kreise" : "Einladungen ansehen"}
-                variant="secondary"
-                onPress={() => router.push(joined.length > 0 ? "/(tabs)/kreise" : "/(tabs)/entdecken")}
-                style={{ marginTop: 14 }}
-              />
-            </Card>
+            <EmptyState
+              kicker="Heute frei"
+              title="Heute darfst du Pause machen"
+              body={
+                joined.length > 0
+                  ? "Kein offener Termin — das ist in Ordnung. Deine Kreise sind trotzdem da."
+                  : "Unter Entdecken wartet vielleicht eine Einladung, die sich leicht anfühlt."
+              }
+              action={
+                <Button
+                  label={joined.length > 0 ? "Meine Kreise" : "Einladungen ansehen"}
+                  variant="secondary"
+                  onPress={() => router.push(joined.length > 0 ? "/(tabs)/kreise" : "/(tabs)/entdecken")}
+                />
+              }
+            />
           )}
         </ScrollView>
       </View>
@@ -213,6 +211,5 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   hintText: { ...type.caption, color: colors.muted },
-  memory: { ...type.callout, color: colors.clay, lineHeight: 22 },
-  intent: { ...type.title, color: colors.ink },
+  memory: { ...type.callout, color: colors.coral, lineHeight: 22 },
 });

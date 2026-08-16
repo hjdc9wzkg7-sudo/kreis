@@ -1,67 +1,52 @@
 ﻿Du arbeitest an der Expo Router / React Native App im Ordner `apps/ios`.
 
-Ziel: Das Design einheitlicher, ruhiger und gleichzeitig etwas fröhlicher und hochwertiger machen. Keine großen Experimente. Bestehende Coral-Primary, Atmosphere und Enter-Animation beibehalten und konsequent durchziehen.
+Ziel: Design-Feinschliff. Die App soll einheitlicher, ruhiger und etwas freudiger wirken — ohne die bestehende Coral-Primary, Atmosphere und Enter-Animationen zu zerstören.
 
 ### Aktueller Stand
-- Tokens: coral als Primary, verbesserte Atmosphere, Enter-Komponente vorhanden
-- Komponenten: `src/components/ui.tsx`, `glass.tsx`, `motion.tsx`, `CircleCard.tsx`
-- Screens: Entdecken, Kreise, Profil, Heute, Kreis-Detail
+- Navigation und Back-Verhalten sind behoben
+- Coral als Primary, Enter-Komponente und verbesserte Atmosphere vorhanden
+- Entdecken-Empty-State ist bereits aufgewertet
+- „Kreis verlassen“ ist sichtbar
 
 ---
 
-### Phase 1 – Einheitlichkeit herstellen
+### Phase 1 – Restliche Empty States
 
-1. **Cards**
-   - Alle wichtigen Listen- und Inhalts-Cards sollen die gleiche `Enter`-Animation und das gleiche Spacing nutzen.
-   - Prüfe CircleCard, MeetupCard, FormatGuideCard, Empty States und stelle sicher, dass Padding, Radius und Schatten konsistent sind.
+Verbessere die Empty States auf:
+- Kreise-Tab (wenn keine Kreise vorhanden)
+- Profil (leere Bereiche)
+- Heute / Index (falls leer)
 
-2. **Buttons**
-   - Primary = coral, klar dominant.
-   - Secondary und Ghost müssen visuell klar untergeordnet sein.
-   - Gleiche Höhe, gleiche Border-Radius und gleiche Press-Animation überall.
-
-3. **Typografie & Abstände**
-   - Section-Titel, Kickers und Body-Texte sollen auf allen Haupt-Screens die gleichen Tokens und Abstände verwenden.
-   - Keine willkürlichen fontSize oder margin-Werte mehr.
+Jeder Empty State braucht:
+- Einen kurzen, warmen Kicker (gerne mit Coral)
+- Klaren Titel
+- Menschlichen, nicht generischen Body-Text
+- Konsistentes Spacing und die gleiche visuelle Sprache wie der Entdecken-Empty-State
 
 ---
 
-### Phase 2 – Empty States aufwerten
+### Phase 2 – Einheitlichkeit
 
-Besonders wichtig:
-- Entdecken („Für heute genug“)
-- Kreise (wenn leer)
-- Profil-Bereiche ohne Inhalt
-
-Jeder Empty State soll:
-- Einen klaren, warmen Titel haben
-- Einen kurzen, menschlichen Body-Text
-- Optional einen dezenten Coral-Akzent (Kicker oder kleiner visueller Hinweis)
-- Nicht mehr trocken und generisch wirken
+1. Alle Cards (CircleCard, MeetupCard, FormatGuideCard, etc.) sollen gleiches Padding, gleichen Radius und die gleiche Enter-Animation nutzen.
+2. Primary-, Secondary- und Ghost-Buttons müssen überall identisch wirken (Höhe, Radius, Press-Verhalten).
+3. Section-Titel, Kickers und Abstände auf den Haupt-Tabs vereinheitlichen.
+4. Header und Tab-Inhalte sollen visuell ruhiger und konsistenter werden.
 
 ---
 
-### Phase 3 – Visuelle Hierarchie & Ruhe
+### Phase 3 – Dezente Delight-Momente
 
-- Primäre Aktionen (Dabei sein, Zusagen, Verlassen) müssen sofort ins Auge springen.
-- Sekundäre Aktionen zurücknehmen.
-- Auf den Haupt-Tabs (Heute, Entdecken, Kreise, Profil) für mehr Luft und klarere Abschnitte sorgen.
-- Header und Tab-Bar sollen ruhig und konsistent wirken (keine wilden Abweichungen).
-
----
-
-### Phase 4 – Leichte Delight-Momente (nur dezent)
-
-- Beim erfolgreichen Beitreten zu einem Kreis ein kurzes positives Feedback (Text oder sehr dezente Animation).
-- PressableScale und Haptics beibehalten und nur dort nachschärfen, wo es noch inkonsistent ist.
+- Beim erfolgreichen Beitreten zu einem Kreis ein kurzes, positives Feedback (Text oder sehr dezente Animation/Haptic).
+- Beim Verlassen eines Kreises ebenfalls klares, ruhiges Feedback.
+- Keine übertriebenen Animationen. Nur spürbare, hochwertige Momente.
 
 ---
 
 ### Regeln
-- Keine neuen großen Design-Systeme erfinden.
 - Bestehende Tokens und Komponenten maximal wiederverwenden.
-- Keine Breaking Changes an der Logik.
+- Keine neuen großen Design-Systeme.
+- Keine Logik-Änderungen außer dem Nötigsten für Feedback.
 - Nach jeder Phase kurze Statusmeldung + relevante Diffs.
-- Am Ende Auflistung der geänderten Dateien und was sich für den Nutzer spürbar verbessert hat.
+- Am Ende Auflistung der geänderten Dateien und was sich für den Nutzer spürbar verbessert.
 
 Arbeite präzise und sequenziell.

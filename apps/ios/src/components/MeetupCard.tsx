@@ -240,7 +240,7 @@ function LocationBlock({ revealed, location }: { revealed: boolean; location: st
 const styles = StyleSheet.create({
   kicker: { ...type.kicker, color: colors.coral, textTransform: "none", marginBottom: 6 },
   title: { ...type.hero, color: colors.ink },
-  when: { marginTop: 6, color: colors.ink, fontWeight: "600", fontSize: type.subtitle.fontSize, lineHeight: type.subtitle.lineHeight },
+  when: { marginTop: 6, ...type.subtitle, color: colors.ink, fontWeight: "600" },
   place: {
     marginTop: space.md,
     backgroundColor: "rgba(255,255,255,0.45)",

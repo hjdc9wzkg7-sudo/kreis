@@ -27,7 +27,7 @@ export default function CirclesScreen() {
             <Display>Meine Kreise</Display>
             <Body muted>
               {joined.length === 0
-                ? "Noch kein Kreis — ein Ritual reicht."
+                ? "Noch niemand um den Tisch. Eine Runde reicht."
                 : `${joined.length} aktive ${joined.length === 1 ? "Kreis" : "Kreise"}`}
             </Body>
           </View>

@@ -120,6 +120,7 @@ function reducer(state: AppState, action: AppAction): AppState {
     case "LEAVE_CIRCLE":
       return {
         ...state,
+        flash: "Du hast den Kreis verlassen. Alles gut.",
         joinedCircleIds: state.joinedCircleIds.filter((id) => id !== action.circleId),
         circles: state.circles.map((circle) =>
           circle.id === action.circleId

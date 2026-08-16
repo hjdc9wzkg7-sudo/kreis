@@ -111,9 +111,9 @@ export default function ProfileScreen() {
 
           {reputation.guestCircles.length === 0 && reputation.hostedCircles.length === 0 && (
             <EmptyState
-              kicker="Noch still"
-              title="Noch kein Kreis an dir"
-              body="Unter Entdecken findest du eine Runde. Oder du legst selbst ein Treffen fest."
+              kicker="Noch still hier"
+              title="Dein Kreis beginnt klein"
+              body="Unter Entdecken findest du eine Runde, die sich leicht anfühlt. Oder du lädst selbst ein."
             />
           )}
 

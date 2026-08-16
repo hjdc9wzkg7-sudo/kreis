@@ -169,12 +169,17 @@ export default function CircleDetailScreen() {
             <Text style={styles.kicker}>
               {formatIcons[resolveFormat(circle.format)]} {formatLabels[resolveFormat(circle.format)]} · {circle.neighborhood}
             </Text>
-            <Text style={styles.meta}>Gastgeber:in {circle.hostName}</Text>
+            <Text style={styles.meta}>
+              {isHost ? "Du führst diesen Kreis" : `Gastgeber:in ${circle.hostName}`}
+            </Text>
             <Text style={styles.seats}>{openSeatsLabel(circle)}</Text>
             <Text style={styles.season}>
               Woche {circle.season.weekNumber} von {circle.season.totalWeeks}
+              {Math.max(0, circle.season.totalWeeks - circle.season.weekNumber) > 0
+                ? ` · noch ${circle.season.totalWeeks - circle.season.weekNumber} Treffen`
+                : " · letzte Woche dieser Saison"}
             </Text>
-            <Text style={styles.ritual}>{circle.season.ritual}</Text>
+            <Text style={styles.ritual}>Als Nächstes: {circle.season.ritual}</Text>
             <SeasonBar week={circle.season.weekNumber} total={circle.season.totalWeeks} />
             {!isMember && (
               <Button

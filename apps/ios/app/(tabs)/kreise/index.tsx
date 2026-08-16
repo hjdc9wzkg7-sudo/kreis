@@ -44,6 +44,7 @@ export default function CirclesScreen() {
                 key={circle.id}
                 circle={circle}
                 onPress={() => openCircle(circle.id, "kreise")}
+                currentUserId={state.currentUser.id}
               />
             ))
           )}

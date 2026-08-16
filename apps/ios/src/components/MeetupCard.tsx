@@ -46,6 +46,7 @@ export function MeetupCard({
     <Card>
       <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.kicker}>
         {ended ? "Letztes Treffen" : `Nächstes Treffen · ${when}`}
+        {isHost ? " · Du führst" : ""}
       </Text>
       <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.title}>
         {meetup.title}
@@ -63,7 +64,9 @@ export function MeetupCard({
             .filter((value): value is string => Boolean(value))}
         />
         <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.hint}>
-          {attending.length} zugesagt
+          {attending.length === 0
+            ? "Noch niemand fest zugesagt"
+            : `${attending.map(([id]) => getUserById(id)?.name ?? "Mitglied").join(", ")}`}
           {started ? ` · ${here.length} wirklich da` : ""}
         </Text>
       </View>
@@ -126,6 +129,15 @@ export function MeetupCard({
               </Text>
             </PressableScale>
           </View>
+          <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.stand}>
+            {myRsvp === "yes"
+              ? "Dein Stand: zugesagt"
+              : myRsvp === "maybe"
+                ? "Dein Stand: vielleicht"
+                : myRsvp === "no"
+                  ? "Dein Stand: abgesagt"
+                  : "Dein Stand: noch offen"}
+          </Text>
         </View>
       )}
 
@@ -281,6 +293,7 @@ const styles = StyleSheet.create({
   rsvpNo: { backgroundColor: colors.muted },
   rsvpLabel: { fontWeight: "600", color: colors.ink },
   rsvpLabelOn: { color: colors.white },
+  stand: { ...type.caption, color: colors.coral, marginTop: 4 },
   here: { marginTop: 14, color: colors.sage, fontWeight: "600" },
   hostList: { marginTop: 16, gap: 10 },
   hostTitle: { fontWeight: "700", color: colors.ink, fontSize: type.subtitle.fontSize },

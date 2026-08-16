@@ -27,18 +27,21 @@ export function CircleCard({
   onPress,
   onJoin,
   onSkip,
+  currentUserId,
 }: {
   circle: Circle;
   reasons?: string[];
   onPress?: () => void;
   onJoin?: () => void;
   onSkip?: () => void;
+  currentUserId?: string;
 }) {
   const members = circle.memberIds
     .map((id) => getUserById(id).initials)
     .filter(Boolean);
   const why = reasons?.[0];
   const hasActions = Boolean(onJoin || onSkip);
+  const leading = currentUserId && circle.hostId === currentUserId;
 
   const info = (
     <>
@@ -57,6 +60,17 @@ export function CircleCard({
           {openSeatsLabel(circle)}
         </Text>
       </View>
+      {leading ? (
+        <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.hostMark}>
+          Du führst diesen Kreis
+        </Text>
+      ) : null}
+      <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.season}>
+        Woche {circle.season.weekNumber} von {circle.season.totalWeeks}
+        {Math.max(0, circle.season.totalWeeks - circle.season.weekNumber) > 0
+          ? ` · noch ${circle.season.totalWeeks - circle.season.weekNumber}`
+          : " · letzte Woche"}
+      </Text>
       {why ? (
         <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.why}>
           {why}
@@ -98,7 +112,9 @@ const styles = StyleSheet.create({
   body: { marginTop: space.sm, color: colors.muted, ...type.callout, fontWeight: "400" },
   meta: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: space.md },
   metaText: { color: colors.ink, ...type.caption, flex: 1, fontWeight: "500" },
-  why: { ...type.caption, color: colors.coral, marginTop: 10 },
+  hostMark: { ...type.caption, color: colors.sage, fontWeight: "700", marginTop: 10 },
+  season: { ...type.caption, color: colors.muted, marginTop: 6 },
+  why: { ...type.caption, color: colors.coral, marginTop: 6 },
   track: {
     height: 6,
     backgroundColor: "rgba(36,31,28,0.08)",

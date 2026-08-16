@@ -6,8 +6,8 @@ import { CircleCard } from "@/src/components/CircleCard";
 import { Atmosphere } from "@/src/components/glass";
 import { PressableScale } from "@/src/components/motion";
 import { Avatar, Button, Card, Display, EmptyState, Kicker, SectionLabel } from "@/src/components/ui";
-import { formatLabels, resolveFormat } from "@/src/domain/copy";
-import { hostedCircleNeedingSchedule, hostedCircles } from "@/src/domain/matching";
+import { formatLabels, paceLabels, resolveFormat } from "@/src/domain/copy";
+import { hostedCircleNeedingSchedule, hostedCircles, intentionPace } from "@/src/domain/matching";
 import { useScreenPadding } from "@/src/components/useTabScrollPadding";
 import { getReputation } from "@/src/domain/trust";
 import { openCircle } from "@/src/navigation";
@@ -57,6 +57,19 @@ export default function ProfileScreen() {
                 </View>
               ))}
             </View>
+          </Card>
+
+          <Card>
+            <SectionLabel>Was zu dir passt</SectionLabel>
+            <Text style={styles.place}>{paceLabels[intentionPace(state.currentUser)]}</Text>
+            <Text style={styles.bio}>
+              {intention.neighborhood} · {intention.formats.map((item) => formatLabels[resolveFormat(item)]).join(", ")}
+            </Text>
+            <Button
+              label="Anpassen"
+              variant="ghost"
+              onPress={() => router.push("/(tabs)/profil/einstellungen" as Href)}
+            />
           </Card>
 
           <SectionLabel>So kennt dich dein Kreis</SectionLabel>
@@ -125,6 +138,7 @@ export default function ProfileScreen() {
                   key={circle.id}
                   circle={circle}
                   onPress={() => openCircle(circle.id, "profil")}
+                  currentUserId={state.currentUser.id}
                 />
               ))}
             </View>
@@ -138,6 +152,7 @@ export default function ProfileScreen() {
                   key={circle.id}
                   circle={circle}
                   onPress={() => openCircle(circle.id, "profil")}
+                  currentUserId={state.currentUser.id}
                 />
               ))}
             </View>

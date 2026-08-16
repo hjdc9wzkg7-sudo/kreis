@@ -8,7 +8,7 @@ import { PressableScale } from "@/src/components/motion";
 import { Avatar, Button, Card, Display, EmptyState, Kicker, SectionLabel } from "@/src/components/ui";
 import { formatLabels, resolveFormat } from "@/src/domain/copy";
 import { hostedCircleNeedingSchedule, hostedCircles } from "@/src/domain/matching";
-import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
+import { useScreenPadding } from "@/src/components/useTabScrollPadding";
 import { getReputation } from "@/src/domain/trust";
 import { openCircle } from "@/src/navigation";
 import { useApp } from "@/src/state/store";
@@ -18,13 +18,13 @@ export default function ProfileScreen() {
   const { state, dispatch } = useApp();
   const reputation = getReputation(state);
   const { intention } = state.currentUser;
-  const tabPad = useTabScrollPadding();
+  const screenPad = useScreenPadding();
 
   return (
     <Atmosphere>
       <View collapsable={false} style={styles.safe}>
         <ScrollView
-          contentContainerStyle={[styles.content, { paddingBottom: tabPad }]}
+          contentContainerStyle={[styles.content, screenPad]}
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}
         >
@@ -150,7 +150,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: space.lg, gap: 20, paddingTop: 56 },
+  content: {},
   top: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
   gear: {
     width: 44,

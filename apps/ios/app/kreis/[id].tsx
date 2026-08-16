@@ -11,7 +11,7 @@ import { Atmosphere } from "@/src/components/glass";
 import { MeetupCard } from "@/src/components/MeetupCard";
 import { MomentFeed } from "@/src/components/MomentFeed";
 import { ScheduleNextCard } from "@/src/components/ScheduleNextCard";
-import { Avatar, Button, Card, SegmentedControl } from "@/src/components/ui";
+import { Avatar, Button, Card, EmptyState, SegmentedControl } from "@/src/components/ui";
 import { FormatGuideCard } from "@/src/components/FormatGuideCard";
 import { formatIcons, formatLabels, resolveFormat } from "@/src/domain/copy";
 import { getUserById } from "@/src/domain/data";
@@ -131,9 +131,13 @@ export default function CircleDetailScreen() {
   if (!circle) {
     return (
       <Atmosphere>
-        <View style={styles.safe}>
-          <Text style={styles.empty}>Diesen Kreis gibt es nicht mehr.</Text>
-          <Button label="Zurück" onPress={goToOrigin} />
+        <View style={[styles.safe, { padding: space.lg, justifyContent: "center" }]}>
+          <EmptyState
+            kicker="Nicht mehr da"
+            title="Diesen Kreis gibt es nicht"
+            body="Vielleicht wurde er aufgelöst — oder der Link stimmt nicht. Zurück, dann findest du deine Runden."
+            action={<Button label="Zurück" onPress={goToOrigin} />}
+          />
         </View>
       </Atmosphere>
     );
@@ -334,6 +338,7 @@ const styles = StyleSheet.create({
   backHit: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     minHeight: 44,
     paddingRight: 10,
   },

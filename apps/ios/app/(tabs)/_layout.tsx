@@ -5,8 +5,8 @@ import { colors } from "@/src/theme/tokens";
 
 const tint =
   Platform.OS === "ios"
-    ? DynamicColorIOS({ light: colors.clay, dark: "#E8B39A" })
-    : colors.clay;
+    ? DynamicColorIOS({ light: colors.coral, dark: "#F0A090" })
+    : colors.coral;
 
 export default function TabLayout() {
   return (

@@ -10,7 +10,7 @@ import { PressableScale } from "@/src/components/motion";
 import { ScheduleNextCard } from "@/src/components/ScheduleNextCard";
 import { Body, Button, EmptyState, Kicker, Title } from "@/src/components/ui";
 import { paceLabels } from "@/src/domain/copy";
-import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
+import { useScreenPadding } from "@/src/components/useTabScrollPadding";
 import { daysUntil, getJoinedCircles, greeting, homePhase, intentionPace } from "@/src/domain/matching";
 import { openCircle } from "@/src/navigation";
 import { useApp } from "@/src/state/store";
@@ -28,7 +28,7 @@ export default function TodayScreen() {
     openCircle(id, "heute");
   }
 
-  const tabPad = useTabScrollPadding();
+  const screenPad = useScreenPadding();
   const intro =
     phase.kind === "upcoming"
       ? `${phase.circle.name} · ${daysUntil(phase.meetup)}`
@@ -46,7 +46,7 @@ export default function TodayScreen() {
     <Atmosphere>
       <View collapsable={false} style={styles.safe}>
         <ScrollView
-          contentContainerStyle={[styles.content, { paddingBottom: tabPad }]}
+          contentContainerStyle={[styles.content, screenPad]}
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}
         >
@@ -200,7 +200,7 @@ export default function TodayScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: space.lg, gap: 20, paddingTop: 56 },
+  content: {},
   intro: { gap: 6 },
   sub: { marginTop: 2 },
   hero: { gap: 8 },

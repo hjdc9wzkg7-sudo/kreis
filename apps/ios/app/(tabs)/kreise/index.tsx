@@ -4,22 +4,21 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { CircleCard } from "@/src/components/CircleCard";
 import { Atmosphere } from "@/src/components/glass";
 import { Body, Button, Display, EmptyState } from "@/src/components/ui";
-import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
+import { useScreenPadding } from "@/src/components/useTabScrollPadding";
 import { getJoinedCircles } from "@/src/domain/matching";
 import { openCircle } from "@/src/navigation";
 import { useApp } from "@/src/state/store";
-import { space } from "@/src/theme/tokens";
 
 export default function CirclesScreen() {
   const { state } = useApp();
   const joined = getJoinedCircles(state);
-  const tabPad = useTabScrollPadding();
+  const screenPad = useScreenPadding();
 
   return (
     <Atmosphere>
       <View collapsable={false} style={styles.safe}>
         <ScrollView
-          contentContainerStyle={[styles.content, { paddingBottom: tabPad }]}
+          contentContainerStyle={[styles.content, screenPad]}
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}
         >
@@ -56,6 +55,6 @@ export default function CirclesScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: space.lg, gap: 20, paddingTop: 56 },
+  content: {},
   intro: { gap: 6 },
 });

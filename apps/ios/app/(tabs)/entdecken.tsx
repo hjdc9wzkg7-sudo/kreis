@@ -5,18 +5,17 @@ import { CircleCard } from "@/src/components/CircleCard";
 import { FormatGuideCard } from "@/src/components/FormatGuideCard";
 import { Atmosphere } from "@/src/components/glass";
 import { Body, Button, Display, EmptyState } from "@/src/components/ui";
-import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
+import { useScreenPadding } from "@/src/components/useTabScrollPadding";
 import { getDailySuggestions } from "@/src/domain/matching";
 import { openCircle } from "@/src/navigation";
 import { useApp } from "@/src/state/store";
-import { space } from "@/src/theme/tokens";
 
 export default function DiscoverScreen() {
   const { state, dispatch } = useApp();
   const suggestions = getDailySuggestions(state);
   const current = suggestions[0];
   const [showGuide, setShowGuide] = useState(false);
-  const tabPad = useTabScrollPadding();
+  const screenPad = useScreenPadding();
 
   useEffect(() => {
     setShowGuide(false);
@@ -31,7 +30,7 @@ export default function DiscoverScreen() {
     <Atmosphere>
       <View collapsable={false} style={styles.safe}>
         <ScrollView
-          contentContainerStyle={[styles.content, { paddingBottom: tabPad }]}
+          contentContainerStyle={[styles.content, screenPad]}
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}
         >
@@ -77,6 +76,6 @@ export default function DiscoverScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: space.lg, gap: 20, paddingTop: 56 },
+  content: {},
   intro: { gap: 6 },
 });

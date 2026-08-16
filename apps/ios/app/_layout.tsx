@@ -3,7 +3,9 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, View } from "react-native";
 
+import { Atmosphere } from "@/src/components/glass";
 import { FlashBanner } from "@/src/components/FlashBanner";
+import { Body } from "@/src/components/ui";
 import { AppProvider, useApp } from "@/src/state/store";
 import { colors } from "@/src/theme/tokens";
 
@@ -18,9 +20,12 @@ function Gate() {
 
   if (!hydrated) {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.cream }}>
-        <ActivityIndicator color={colors.clay} />
-      </View>
+      <Atmosphere>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 14, padding: 24 }}>
+          <ActivityIndicator color={colors.coral} />
+          <Body muted>Einen Moment — wir holen deinen Stand.</Body>
+        </View>
+      </Atmosphere>
     );
   }
 

@@ -202,7 +202,7 @@ export default function TodayScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: space.lg, gap: 16, paddingTop: 56 },
+  content: { padding: space.lg, gap: 20, paddingTop: 56 },
   intro: { gap: 6 },
   sub: { marginTop: 2 },
   hero: { gap: 8 },

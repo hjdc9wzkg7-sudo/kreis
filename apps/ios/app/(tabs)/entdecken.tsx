@@ -49,8 +49,8 @@ export default function DiscoverScreen() {
           {!current ? (
             <EmptyState
               kicker="Pause verdient"
-              title="Heute reicht's"
-              body="Schön, dass du geschaut hast. Morgen liegen neue Einladungen bereit — oder du drehst am Zahnrad, was zu dir passt."
+              title="Für heute genug"
+              body="Ruhig ausatmen. Morgen wartet wieder eine Einladung — oder du sagst unter dem Zahnrad, was sich richtig anfühlt."
             />
           ) : (
             <>
@@ -77,6 +77,6 @@ export default function DiscoverScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: space.lg, gap: 14, paddingTop: 64 },
+  content: { padding: space.lg, gap: 20, paddingTop: 56 },
   intro: { gap: 6 },
 });

@@ -102,9 +102,9 @@ function reducer(state: AppState, action: AppAction): AppState {
       const hasUpcoming = joined ? Boolean(upcomingMeetupForCircle(state, joined.id)) : false;
       const flash = joined
         ? hasUpcoming
-          ? `Du bist in „${joined.name}“. Sag zu, dann siehst du den Ort.`
-          : `Du bist in „${joined.name}“. ${joined.hostName} legt den nächsten Abend fest.`
-        : "Du bist im Kreis.";
+          ? `Schön, du bist dabei. Sag zu — dann siehst du, wo ihr euch trefft.`
+          : `Schön, du bist in „${joined.name}“. ${joined.hostName} legt das nächste Treffen fest.`
+        : "Schön, du bist im Kreis.";
       return {
         ...state,
         flash,

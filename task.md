@@ -1,41 +1,67 @@
-﻿Du arbeitest an der Expo Router / React Native iOS-App im Ordner `apps/ios`.
+﻿Du arbeitest an der Expo Router / React Native App im Ordner `apps/ios`.
 
-Ziel dieser Session: Das Design spürbar fröhlicher, lebendiger und hochwertiger machen, ohne die ruhige, erwachsene Grundstimmung zu zerstören. Die App soll näher an Apple-Design-Award-Niveau kommen (Liquid Glass + Delight + klare Persönlichkeit).
+Ziel: Das Design einheitlicher, ruhiger und gleichzeitig etwas fröhlicher und hochwertiger machen. Keine großen Experimente. Bestehende Coral-Primary, Atmosphere und Enter-Animation beibehalten und konsequent durchziehen.
 
-### Aktueller Stand (bereits vorhanden)
-- `src/theme/tokens.ts` → cream / clay / sage Palette
-- `src/components/glass.tsx` → Atmosphere mit DriftOrbs + GlassSurface (Liquid Glass)
-- `src/components/motion.tsx` → PressableScale
-- `src/components/ui.tsx` → Button, Card, Chip usw.
-- CircleCard und die meisten Screens nutzen Atmosphere + Glass
+### Aktueller Stand
+- Tokens: coral als Primary, verbesserte Atmosphere, Enter-Komponente vorhanden
+- Komponenten: `src/components/ui.tsx`, `glass.tsx`, `motion.tsx`, `CircleCard.tsx`
+- Screens: Entdecken, Kreise, Profil, Heute, Kreis-Detail
 
-### Was du umsetzen sollst (in dieser Reihenfolge)
+---
 
-**1. Tokens & Farbe aufwerten**
-- Mache `clay` etwas satter und wärmer.
-- Füge einen klaren fröhlichen Akzent hinzu (z. B. `coral` oder `peach` – warm, einladend, nicht grell).
-- Passe Primary-Button-Farben und wichtige CTAs an den neuen Akzent an.
-- Atmosphere-Gradient und die beiden DriftOrbs sollen spürbar lebendiger und farbiger werden (weniger Grau, mehr Wärme und Frische).
-- Behalte die generelle Wärme und Premium-Wirkung bei. Kein Regenbogen.
+### Phase 1 – Einheitlichkeit herstellen
 
-**2. Atmosphere verbessern**
-- In `glass.tsx` die Orb-Farben und den Gradient an die neuen Tokens anpassen.
-- Die Drift-Bewegung darf etwas präsenter, aber weiterhin elegant und langsam sein.
-- Stelle sicher, dass Reduce Motion weiterhin korrekt greift.
+1. **Cards**
+   - Alle wichtigen Listen- und Inhalts-Cards sollen die gleiche `Enter`-Animation und das gleiche Spacing nutzen.
+   - Prüfe CircleCard, MeetupCard, FormatGuideCard, Empty States und stelle sicher, dass Padding, Radius und Schatten konsistent sind.
 
-**3. Motion & Delight**
-- Cards und wichtige Listen-Elemente sollen einen leichten, eleganten Entrance bekommen (Fade + kleiner Y-Offset oder Scale, mit Reanimated).
-- PressableScale etwas spielerischer machen (leichter Overshoot erlaubt, aber nicht übertrieben).
-- Primary Buttons sollen beim Press klarer und befriedigender reagieren (Haptics + Animation).
+2. **Buttons**
+   - Primary = coral, klar dominant.
+   - Secondary und Ghost müssen visuell klar untergeordnet sein.
+   - Gleiche Höhe, gleiche Border-Radius und gleiche Press-Animation überall.
 
-**4. Visuelle Hierarchie**
-- „Dabei sein“ und andere primäre Aktionen müssen farblich und visuell klar dominieren.
-- Secondary/Ghost Buttons bleiben zurückhaltend.
-- Empty States (besonders auf Entdecken) sollen mehr Persönlichkeit bekommen – nicht nur trockener Text.
+3. **Typografie & Abstände**
+   - Section-Titel, Kickers und Body-Texte sollen auf allen Haupt-Screens die gleichen Tokens und Abstände verwenden.
+   - Keine willkürlichen fontSize oder margin-Werte mehr.
 
-**5. Qualitätssicherung**
-- Alle Änderungen müssen mit dem bestehenden Liquid-Glass-System und den aktuellen Komponenten funktionieren.
+---
+
+### Phase 2 – Empty States aufwerten
+
+Besonders wichtig:
+- Entdecken („Für heute genug“)
+- Kreise (wenn leer)
+- Profil-Bereiche ohne Inhalt
+
+Jeder Empty State soll:
+- Einen klaren, warmen Titel haben
+- Einen kurzen, menschlichen Body-Text
+- Optional einen dezenten Coral-Akzent (Kicker oder kleiner visueller Hinweis)
+- Nicht mehr trocken und generisch wirken
+
+---
+
+### Phase 3 – Visuelle Hierarchie & Ruhe
+
+- Primäre Aktionen (Dabei sein, Zusagen, Verlassen) müssen sofort ins Auge springen.
+- Sekundäre Aktionen zurücknehmen.
+- Auf den Haupt-Tabs (Heute, Entdecken, Kreise, Profil) für mehr Luft und klarere Abschnitte sorgen.
+- Header und Tab-Bar sollen ruhig und konsistent wirken (keine wilden Abweichungen).
+
+---
+
+### Phase 4 – Leichte Delight-Momente (nur dezent)
+
+- Beim erfolgreichen Beitreten zu einem Kreis ein kurzes positives Feedback (Text oder sehr dezente Animation).
+- PressableScale und Haptics beibehalten und nur dort nachschärfen, wo es noch inkonsistent ist.
+
+---
+
+### Regeln
+- Keine neuen großen Design-Systeme erfinden.
+- Bestehende Tokens und Komponenten maximal wiederverwenden.
 - Keine Breaking Changes an der Logik.
-- Nach den Änderungen kurz auflisten, welche Dateien du geändert hast und warum.
+- Nach jeder Phase kurze Statusmeldung + relevante Diffs.
+- Am Ende Auflistung der geänderten Dateien und was sich für den Nutzer spürbar verbessert hat.
 
-Arbeite strikt sequenziell. Zeige nach jedem größeren Schritt die relevanten Diffs. Am Ende eine kurze Zusammenfassung der Design-Entscheidung.
+Arbeite präzise und sequenziell.

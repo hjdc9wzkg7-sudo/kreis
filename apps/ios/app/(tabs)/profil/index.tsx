@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { CircleCard } from "@/src/components/CircleCard";
 import { Atmosphere } from "@/src/components/glass";
 import { PressableScale } from "@/src/components/motion";
-import { Avatar, Button, Card, Display, Kicker, SectionLabel } from "@/src/components/ui";
+import { Avatar, Button, Card, Display, EmptyState, Kicker, SectionLabel } from "@/src/components/ui";
 import { formatLabels, resolveFormat } from "@/src/domain/copy";
 import { hostedCircleNeedingSchedule, hostedCircles } from "@/src/domain/matching";
 import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
@@ -109,6 +109,14 @@ export default function ProfileScreen() {
             onPress={() => router.push("/(tabs)/profil/host-kits" as Href)}
           />
 
+          {reputation.guestCircles.length === 0 && reputation.hostedCircles.length === 0 && (
+            <EmptyState
+              kicker="Noch still"
+              title="Noch kein Kreis an dir"
+              body="Unter Entdecken findest du eine Runde. Oder du legst selbst ein Treffen fest."
+            />
+          )}
+
           {reputation.guestCircles.length > 0 && (
             <View style={{ gap: 12 }}>
               <SectionLabel>Als Teilnehmer:in</SectionLabel>
@@ -142,7 +150,7 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: space.lg, gap: 14, paddingTop: 64 },
+  content: { padding: space.lg, gap: 20, paddingTop: 56 },
   top: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
   gear: {
     width: 44,

@@ -38,7 +38,7 @@ function Row({ label, text }: { label: string; text: string }) {
 
 const styles = StyleSheet.create({
   title: { ...type.subtitle, fontWeight: "700", color: colors.ink },
-  meta: { ...type.callout, color: colors.clay, marginTop: 4, marginBottom: 10 },
+  meta: { ...type.callout, color: colors.coral, marginTop: 4, marginBottom: 10 },
   row: { marginTop: 10 },
   label: { ...type.kicker, color: colors.muted, marginBottom: 3 },
   body: { ...type.callout, fontWeight: "400", color: colors.ink },

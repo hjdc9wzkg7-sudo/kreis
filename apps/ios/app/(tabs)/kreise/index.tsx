@@ -36,7 +36,7 @@ export default function CirclesScreen() {
             <EmptyState
               kicker="Noch Platz"
               title="Dein erster Kreis wartet"
-              body="Unter Entdecken liegen heute ein paar Einladungen. Eine reicht."
+              body="Unter Entdecken liegen ein paar offene Runden. Eine reicht, um anzufangen."
               action={<Button label="Zu Entdecken" onPress={() => router.push("/(tabs)/entdecken")} />}
             />
           ) : (
@@ -56,6 +56,6 @@ export default function CirclesScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: space.lg, gap: 14, paddingTop: 64 },
+  content: { padding: space.lg, gap: 20, paddingTop: 56 },
   intro: { gap: 6 },
 });

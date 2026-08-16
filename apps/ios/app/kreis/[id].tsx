@@ -1,9 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { leaveCircleScreen } from "@/src/navigation";
+import { leaveCircleScreen, normalizeParam, parseOrigin } from "@/src/navigation";
 
 import { AfterEveningCard } from "@/src/components/AfterEveningCard";
 import { SeasonBar } from "@/src/components/CircleCard";
@@ -29,12 +29,21 @@ import { colors, space, type } from "@/src/theme/tokens";
 type Tab = "treffen" | "momente" | "info";
 
 export default function CircleDetailScreen() {
-  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
+  const params = useLocalSearchParams<{ id: string; from?: string | string[] }>();
+  const id = normalizeParam(params.id);
+  const origin = parseOrigin(params.from);
   const navigation = useNavigation();
   const { state, dispatch } = useApp();
   const [tab, setTab] = useState<Tab>("treffen");
   const [editing, setEditing] = useState(false);
   const tabPad = useTabScrollPadding();
+  const leaving = useRef(false);
+
+  function goToOrigin() {
+    if (leaving.current) return;
+    leaving.current = true;
+    leaveCircleScreen(origin);
+  }
 
   const circle = state.circles.find((item) => item.id === id);
   const isMember = Boolean(circle && state.joinedCircleIds.includes(circle.id));
@@ -59,7 +68,7 @@ export default function CircleDetailScreen() {
           style: "destructive",
           onPress: () => {
             dispatch({ type: "LEAVE_CIRCLE", circleId: circle.id });
-            leaveCircleScreen(from);
+            goToOrigin();
           },
         },
       ],
@@ -83,10 +92,19 @@ export default function CircleDetailScreen() {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: circle?.name ?? "Kreis",
-      headerBackVisible: true,
-      headerBackTitle: "Zurück",
-      headerBackButtonDisplayMode: "generic",
-      headerLeft: undefined,
+      headerBackVisible: false,
+      headerLeft: () => (
+        <Pressable
+          onPress={goToOrigin}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Zurück"
+          style={styles.backHit}
+        >
+          <Ionicons name="chevron-back" size={22} color={colors.clayDark} />
+          <Text style={styles.backLabel}>Zurück</Text>
+        </Pressable>
+      ),
       headerRight: () => (
         <Pressable
           onPress={openMore}
@@ -99,14 +117,23 @@ export default function CircleDetailScreen() {
         </Pressable>
       ),
     });
-  }, [circle?.name, navigation]);
+  }, [circle?.name, origin, navigation]);
+
+  useEffect(() => {
+    const sub = navigation.addListener("beforeRemove", (event) => {
+      if (!origin || leaving.current) return;
+      event.preventDefault();
+      goToOrigin();
+    });
+    return sub;
+  }, [navigation, origin]);
 
   if (!circle) {
     return (
       <Atmosphere>
         <View style={styles.safe}>
           <Text style={styles.empty}>Diesen Kreis gibt es nicht mehr.</Text>
-          <Button label="Zurück" onPress={() => leaveCircleScreen(from)} />
+          <Button label="Zurück" onPress={goToOrigin} />
         </View>
       </Atmosphere>
     );
@@ -273,6 +300,9 @@ export default function CircleDetailScreen() {
                   ))}
                 </Card>
               )}
+              {isMember && !isHost && (
+                <Button label="Kreis verlassen" variant="secondary" onPress={leaveCircle} />
+              )}
               {isMember && (
                 <Button
                   label="Melden"
@@ -301,4 +331,11 @@ const styles = StyleSheet.create({
   member: { flexDirection: "row", gap: 10, alignItems: "center", marginTop: 10 },
   memberName: { fontWeight: "600", color: colors.ink },
   empty: { color: colors.muted, textAlign: "center", padding: 24 },
+  backHit: {
+    flexDirection: "row",
+    alignItems: "center",
+    minHeight: 44,
+    paddingRight: 10,
+  },
+  backLabel: { color: colors.clayDark, fontSize: 17, fontWeight: "600" },
 });

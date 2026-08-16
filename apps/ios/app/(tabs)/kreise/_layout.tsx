@@ -8,8 +8,11 @@ export default function CirclesStack() {
       screenOptions={{
         headerShadowVisible: false,
         headerTintColor: colors.clayDark,
+        headerBackTitle: "Zurück",
+        headerBackButtonDisplayMode: "generic",
         headerTitleStyle: { fontWeight: "600", color: colors.ink },
         contentStyle: { backgroundColor: colors.cream },
+        animation: "slide_from_right",
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />

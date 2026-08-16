@@ -8,10 +8,12 @@ export default function ProfileStack() {
       screenOptions={{
         headerShadowVisible: false,
         headerTintColor: colors.clayDark,
-        headerBackTitle: "Profil",
-        headerBackButtonDisplayMode: "minimal",
+        headerBackTitle: "Zurück",
+        headerBackButtonDisplayMode: "generic",
+        headerBackVisible: true,
         headerTitleStyle: { fontWeight: "600", color: colors.ink },
         contentStyle: { backgroundColor: colors.cream },
+        animation: "slide_from_right",
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />

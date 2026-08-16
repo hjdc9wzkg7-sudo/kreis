@@ -1,49 +1,41 @@
-﻿Du bist ein erfahrener Full-Stack- und Mobile-Entwickler + UX-Spezialist. Du arbeitest direkt am bestehenden Code dieser App (Profil, Kreise, Entdecken, Einladungen, Join/Leave). 
+﻿Du arbeitest an der Expo Router / React Native iOS-App im Ordner `apps/ios`.
 
-Zuerst analysierst du den aktuellen Tech-Stack, die Navigations-Bibliothek (React Navigation / Expo Router / Flutter Navigator / etc.), den State-Management-Ansatz und die bestehende Screen-Struktur. Arbeite ausschließlich auf Basis des realen Codes – keine Annahmen.
+Ziel dieser Session: Das Design spürbar fröhlicher, lebendiger und hochwertiger machen, ohne die ruhige, erwachsene Grundstimmung zu zerstören. Die App soll näher an Apple-Design-Award-Niveau kommen (Liquid Glass + Delight + klare Persönlichkeit).
 
-### Phase 1 – Konkrete UX- und Navigations-Bugs sofort beheben
+### Aktueller Stand (bereits vorhanden)
+- `src/theme/tokens.ts` → cream / clay / sage Palette
+- `src/components/glass.tsx` → Atmosphere mit DriftOrbs + GlassSurface (Liquid Glass)
+- `src/components/motion.tsx` → PressableScale
+- `src/components/ui.tsx` → Button, Card, Chip usw.
+- CircleCard und die meisten Screens nutzen Atmosphere + Glass
 
-1. **Back-Navigation von Kreis-Detail**
-   - Aktuelles Verhalten: Profil → Kreis antippen → Zurück → landet auf Kreise-Liste statt zurück auf Profil.
-   - Gewünschtes Verhalten: Der Back-Stack muss korrekt sein. Von Profil in einen Kreis und zurück muss wieder auf dem Profil landen (nicht auf der globalen Kreise-Übersicht).
-   - Prüfe und korrigiere die Navigation-History / `navigation.goBack()` / `router.back()` / Stack-Parameter. Stelle sicher, dass der Ursprungs-Screen korrekt übergeben und wiederhergestellt wird.
+### Was du umsetzen sollst (in dieser Reihenfolge)
 
-2. **„Kreis verlassen“ ist zu versteckt**
-   - Aktuell liegt die Aktion unter „Info“ und ist schwer auffindbar.
-   - Mache „Kreis verlassen“ deutlich sichtbarer und zugänglicher (z. B. eigener Button oder klarer Eintrag im Kreis-Menü / Overflow-Menü / Settings-Bereich des Kreises). 
-   - Füge eine Bestätigungs-Dialog hinzu (mit klarem Hinweis auf die Konsequenzen).
+**1. Tokens & Farbe aufwerten**
+- Mache `clay` etwas satter und wärmer.
+- Füge einen klaren fröhlichen Akzent hinzu (z. B. `coral` oder `peach` – warm, einladend, nicht grell).
+- Passe Primary-Button-Farben und wichtige CTAs an den neuen Akzent an.
+- Atmosphere-Gradient und die beiden DriftOrbs sollen spürbar lebendiger und farbiger werden (weniger Grau, mehr Wärme und Frische).
+- Behalte die generelle Wärme und Premium-Wirkung bei. Kein Regenbogen.
 
-3. **Button-Anordnung auf dem Entdecken-Screen**
-   - Aktuell: Links „Andere Einladung“, Rechts „Dabei sein“ (farbig hervorgehoben).
-   - Ändere die Reihenfolge und Semantik so, dass die primäre positive Aktion („Dabei sein“ / „Mitmachen“) links steht und die sekundäre / ablehnende Aktion („Ablehnen“ / „Andere Einladung“) rechts.
-   - Stelle sicher, dass die visuelle Hierarchie (Farbe, Gewicht, Position) klar die primäre Aktion kommuniziert und konsistent mit dem Rest der App ist.
+**2. Atmosphere verbessern**
+- In `glass.tsx` die Orb-Farben und den Gradient an die neuen Tokens anpassen.
+- Die Drift-Bewegung darf etwas präsenter, aber weiterhin elegant und langsam sein.
+- Stelle sicher, dass Reduce Motion weiterhin korrekt greift.
 
-Nach jedem Fix: Kurzer Diff + kurze Erklärung warum die Änderung korrekt ist. Danach manuell den Flow testen (gedanklich + über den Code).
+**3. Motion & Delight**
+- Cards und wichtige Listen-Elemente sollen einen leichten, eleganten Entrance bekommen (Fade + kleiner Y-Offset oder Scale, mit Reanimated).
+- PressableScale etwas spielerischer machen (leichter Overshoot erlaubt, aber nicht übertrieben).
+- Primary Buttons sollen beim Press klarer und befriedigender reagieren (Haptics + Animation).
 
-### Phase 2 – Vollständige Code- und App-Audit
+**4. Visuelle Hierarchie**
+- „Dabei sein“ und andere primäre Aktionen müssen farblich und visuell klar dominieren.
+- Secondary/Ghost Buttons bleiben zurückhaltend.
+- Empty States (besonders auf Entdecken) sollen mehr Persönlichkeit bekommen – nicht nur trockener Text.
 
-Nachdem die drei Punkte oben behoben sind, führe eine systematische, vollständige Prüfung der gesamten App und des Codes durch:
+**5. Qualitätssicherung**
+- Alle Änderungen müssen mit dem bestehenden Liquid-Glass-System und den aktuellen Komponenten funktionieren.
+- Keine Breaking Changes an der Logik.
+- Nach den Änderungen kurz auflisten, welche Dateien du geändert hast und warum.
 
-- Funktionalität: Jeder User-Flow (Profil, Kreise erstellen/beitreten/verlassen, Entdecken, Einladungen, Join/Decline, Back-Navigation überall)
-- Redundanzen (doppelte Komponenten, doppelte Logik, unnötige State-Kopien)
-- Bugs, Edge-Cases, Race-Conditions, fehlende Error-Handling
-- Inkonsistenzen (Namensgebung, Spacing, Farben, Typography, Button-Styles, Loading-States, Empty-States)
-- Verwirrende UX / unklare Hierarchien / versteckte Aktionen
-- Performance (unnötige Re-Renders, schwere Listen, fehlende Memoization)
-- Accessibility (Labels, Kontrast, Touch-Targets)
-- Code-Qualität (DRY, Trennung von Concerns, Typisierung, Dead Code)
-- Sicherheit relevante Stellen (Einladungs-Links, Berechtigungen in Kreisen)
-
-Liste alle gefundenen Probleme priorisiert (Critical / High / Medium / Low) und behebe die Critical + High Probleme direkt.
-
-### Phase 3 – Nächste logische Schritte & Feature-Umsetzung
-
-Nach Abschluss von Phase 1 + 2:
-
-1. Analysiere den aktuellen Stand der App und leite die logisch nächsten Features und Verbesserungen ab (User-Value × Aufwand × technische Schuld).
-2. Priorisiere klar (Top 3–5 nächste Maßnahmen).
-3. Setze die höchsten Prioritäten direkt um (Code + UI + Logik).
-4. Dokumentiere kurz, warum genau diese Reihenfolge sinnvoll ist.
-
-Arbeite strikt sequenziell. Nach jeder Phase kurze Statusmeldung was erledigt wurde und was als nächstes kommt. Keine unnötigen Erklärungen, nur konkrete Änderungen und Begründungen.
+Arbeite strikt sequenziell. Zeige nach jedem größeren Schritt die relevanten Diffs. Am Ende eine kurze Zusammenfassung der Design-Entscheidung.

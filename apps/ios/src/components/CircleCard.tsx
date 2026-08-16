@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
   body: { marginTop: space.sm, color: colors.muted, ...type.callout, fontWeight: "400" },
   meta: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: space.md },
   metaText: { color: colors.ink, ...type.caption, flex: 1, fontWeight: "500" },
-  why: { ...type.caption, color: colors.clay, marginTop: 10 },
+  why: { ...type.caption, color: colors.coral, marginTop: 10 },
   track: {
     height: 6,
     backgroundColor: "rgba(36,31,28,0.08)",
@@ -106,6 +106,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginTop: 8,
   },
-  fill: { height: "100%", backgroundColor: colors.clay },
+  fill: { height: "100%", backgroundColor: colors.coral },
   actions: { flexDirection: "row", gap: 8, marginTop: space.md },
 });

@@ -4,7 +4,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-na
 
 import { colors, motion, radius, type, typeScale } from "../theme/tokens";
 import { GlassSurface } from "./glass";
-import { PressableScale } from "./motion";
+import { Enter, PressableScale } from "./motion";
 import { useReduceMotion } from "./useReduceMotion";
 
 function AppText({
@@ -36,15 +36,19 @@ export function Card({
   children,
   style,
   padded = true,
+  delay = 0,
 }: {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   padded?: boolean;
+  delay?: number;
 }) {
   return (
-    <GlassSurface style={style} padded={padded}>
-      {children}
-    </GlassSurface>
+    <Enter delay={delay} style={style}>
+      <GlassSurface style={style} padded={padded}>
+        {children}
+      </GlassSurface>
+    </Enter>
   );
 }
 
@@ -97,7 +101,7 @@ export function Button({
   return (
     <PressableScale
       disabled={disabled}
-      haptic={variant === "primary" ? "success" : "light"}
+      haptic={variant === "primary" ? "medium" : "light"}
       accessibilityLabel={label}
       onPress={onPress}
       style={[
@@ -115,7 +119,7 @@ export function Button({
         style={[
           styles.buttonLabel,
           variant === "secondary" && { color: colors.ink },
-          variant === "ghost" && { color: colors.clayDark },
+          variant === "ghost" && { color: colors.coralDark },
           variant === "danger" && { color: colors.white },
         ]}
       >
@@ -155,7 +159,7 @@ export function SectionLabel({ children }: { children: ReactNode }) {
 }
 
 export function Kicker({ children, clay }: { children: ReactNode; clay?: boolean }) {
-  return <AppText style={[styles.kicker, clay && { color: colors.clay }]}>{children}</AppText>;
+  return <AppText style={[styles.kicker, clay && { color: colors.coral }]}>{children}</AppText>;
 }
 
 export function Body({
@@ -228,19 +232,24 @@ export function EmptyState({
   title,
   body,
   action,
+  kicker = "Alles ruhig",
 }: {
   title: string;
   body: string;
   action?: ReactNode;
+  kicker?: string;
 }) {
   return (
-    <GlassSurface>
-      <AppText style={styles.title}>{title}</AppText>
-      <AppText muted style={[styles.body, { marginTop: 8 }]}>
-        {body}
-      </AppText>
-      {action ? <View style={{ marginTop: 16 }}>{action}</View> : null}
-    </GlassSurface>
+    <Enter>
+      <GlassSurface>
+        <AppText style={[styles.kicker, { color: colors.coral }]}>{kicker}</AppText>
+        <AppText style={[styles.title, { marginTop: 8 }]}>{title}</AppText>
+        <AppText muted style={[styles.body, { marginTop: 8 }]}>
+          {body}
+        </AppText>
+        {action ? <View style={{ marginTop: 16 }}>{action}</View> : null}
+      </GlassSurface>
+    </Enter>
   );
 }
 
@@ -291,7 +300,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 18,
   },
-  buttonPrimary: { backgroundColor: colors.clay },
+  buttonPrimary: { backgroundColor: colors.coral },
   buttonSecondary: { backgroundColor: "rgba(255,255,255,0.55)" },
   buttonGhost: { backgroundColor: "transparent" },
   buttonDanger: { backgroundColor: colors.danger },
@@ -305,7 +314,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   chipIdle: { backgroundColor: "rgba(255,255,255,0.45)" },
-  chipClay: { backgroundColor: colors.clay },
+  chipClay: { backgroundColor: colors.coral },
   chipSage: { backgroundColor: colors.sage },
   chipLabel: { ...type.callout, color: colors.muted },
   section: { ...type.caption, color: colors.muted, marginBottom: 8 },
@@ -319,7 +328,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "rgba(36,31,28,0.15)",
   },
-  dotOn: { backgroundColor: colors.clay },
+  dotOn: { backgroundColor: colors.coral },
   segment: { borderRadius: radius.pill },
   segmentRow: { flexDirection: "row", padding: 4, gap: 4 },
   segmentItem: {

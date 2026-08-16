@@ -34,8 +34,9 @@ export default function CirclesScreen() {
 
           {joined.length === 0 ? (
             <EmptyState
-              title="Finde deinen ersten Kreis"
-              body="Entdecken zeigt dir heute höchstens drei passende Gruppen."
+              kicker="Noch Platz"
+              title="Dein erster Kreis wartet"
+              body="Unter Entdecken liegen heute ein paar Einladungen. Eine reicht."
               action={<Button label="Zu Entdecken" onPress={() => router.push("/(tabs)/entdecken")} />}
             />
           ) : (

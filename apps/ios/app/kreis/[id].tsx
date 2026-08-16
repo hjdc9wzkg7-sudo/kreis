@@ -83,19 +83,10 @@ export default function CircleDetailScreen() {
   useLayoutEffect(() => {
     navigation.setOptions({
       title: circle?.name ?? "Kreis",
-      headerBackVisible: false,
-      headerLeft: () => (
-        <Pressable
-          onPress={() => leaveCircleScreen(from)}
-          hitSlop={12}
-          accessibilityRole="button"
-          accessibilityLabel="Zurück"
-          style={{ flexDirection: "row", alignItems: "center", minHeight: 44, paddingRight: 8 }}
-        >
-          <Ionicons name="chevron-back" size={22} color={colors.clayDark} />
-          <Text style={{ color: colors.clayDark, fontSize: 17, fontWeight: "600" }}>Zurück</Text>
-        </Pressable>
-      ),
+      headerBackVisible: true,
+      headerBackTitle: "Zurück",
+      headerBackButtonDisplayMode: "generic",
+      headerLeft: undefined,
       headerRight: () => (
         <Pressable
           onPress={openMore}
@@ -108,7 +99,7 @@ export default function CircleDetailScreen() {
         </Pressable>
       ),
     });
-  }, [circle?.name, from, isMember, navigation]);
+  }, [circle?.name, navigation]);
 
   if (!circle) {
     return (

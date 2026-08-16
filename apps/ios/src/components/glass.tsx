@@ -46,8 +46,9 @@ function DriftOrb({
     transform: [
       { translateX: progress.value * x },
       { translateY: progress.value * y },
-      { scale: 1 + progress.value * 0.06 },
+      { scale: 1 + progress.value * 0.1 },
     ],
+    opacity: 0.88 + progress.value * 0.12,
   }));
 
   return <Animated.View pointerEvents="none" style={[style, animated]} />;
@@ -57,13 +58,13 @@ export function Atmosphere({ children }: { children: ReactNode }) {
   return (
     <View style={styles.atmosphere}>
       <LinearGradient
-        colors={["#FBF6EF", "#F3E7D8", "#E8F0E6"]}
-        start={{ x: 0.1, y: 0 }}
-        end={{ x: 0.9, y: 1 }}
+        colors={["#FFF6EE", "#F8DCC8", "#E4F0E6"]}
+        start={{ x: 0.05, y: 0 }}
+        end={{ x: 0.95, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
-      <DriftOrb style={styles.orbClay} x={-28} y={22} duration={motion.driftMs.clay} />
-      <DriftOrb style={styles.orbSage} x={24} y={-18} duration={motion.driftMs.sage} />
+      <DriftOrb style={styles.orbClay} x={-40} y={28} duration={motion.driftMs.clay} />
+      <DriftOrb style={styles.orbSage} x={32} y={-24} duration={motion.driftMs.sage} />
       {children}
     </View>
   );
@@ -117,21 +118,21 @@ const styles = StyleSheet.create({
   },
   orbClay: {
     position: "absolute",
-    width: 300,
-    height: 300,
-    borderRadius: 150,
-    backgroundColor: "rgba(196,113,74,0.18)",
-    top: -90,
-    right: -80,
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    backgroundColor: "rgba(227,106,74,0.32)",
+    top: -96,
+    right: -72,
   },
   orbSage: {
     position: "absolute",
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: "rgba(95,134,102,0.16)",
-    bottom: 70,
-    left: -90,
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: "rgba(92,138,104,0.26)",
+    bottom: 64,
+    left: -84,
   },
   clip: {
     borderRadius: radius.lg,

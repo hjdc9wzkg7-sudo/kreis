@@ -33,16 +33,34 @@ function Gate() {
           headerShadowVisible: false,
           headerTintColor: colors.clayDark,
           headerBackTitle: "Zurück",
+          headerBackButtonDisplayMode: "generic",
           headerStyle: { backgroundColor: colors.cream },
           headerTitleStyle: { color: colors.ink, fontWeight: "600" },
           contentStyle: { backgroundColor: colors.cream },
+          animation: "slide_from_right",
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="kreis/[id]" options={{ title: "Kreis", headerBackTitle: "Zurück" }} />
-        <Stack.Screen name="melden" options={{ title: "Melden", presentation: "modal", headerBackTitle: "Zurück" }} />
+        <Stack.Screen
+          name="kreis/[id]"
+          options={{
+            title: "Kreis",
+            headerBackTitle: "Zurück",
+            headerBackButtonDisplayMode: "generic",
+            headerBackVisible: true,
+          }}
+        />
+        <Stack.Screen
+          name="melden"
+          options={{
+            title: "Melden",
+            presentation: "modal",
+            headerBackTitle: "Zurück",
+            headerBackButtonDisplayMode: "generic",
+          }}
+        />
       </Stack>
     </>
   );

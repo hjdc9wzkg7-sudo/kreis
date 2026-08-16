@@ -48,8 +48,9 @@ export default function DiscoverScreen() {
 
           {!current ? (
             <EmptyState
-              title="Für heute genug"
-              body="Morgen gibt es neue Einladungen. Oder du änderst unter dem Zahnrad, was zu dir passt."
+              kicker="Pause verdient"
+              title="Heute reicht's"
+              body="Schön, dass du geschaut hast. Morgen liegen neue Einladungen bereit — oder du drehst am Zahnrad, was zu dir passt."
             />
           ) : (
             <>

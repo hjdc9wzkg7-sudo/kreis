@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { ReactNode } from "react";
 import { Pressable, type StyleProp, type ViewStyle } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import Animated, { Easing, FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 
 import { motion } from "../theme/tokens";
 import { useReduceMotion } from "./useReduceMotion";
@@ -22,7 +22,7 @@ export function PressableScale({
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
-  haptic?: "light" | "success" | "none";
+  haptic?: "light" | "success" | "medium" | "none";
   accessibilityLabel?: string;
   accessibilityRole?: "button" | "link" | "none";
   accessibilityState?: { disabled?: boolean; selected?: boolean };
@@ -40,8 +40,11 @@ export function PressableScale({
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: Boolean(disabled), ...accessibilityState }}
       onPressIn={() => {
+        if (haptic === "medium" || haptic === "success") {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }
         if (!reduceMotion) {
-          scale.value = withSpring(0.96, motion.pressIn);
+          scale.value = withSpring(0.94, motion.pressIn);
         }
       }}
       onPressOut={() => {
@@ -61,4 +64,30 @@ export function PressableScale({
   );
 }
 
-
+export function Enter({
+  children,
+  delay = 0,
+  style,
+}: {
+  children: ReactNode;
+  delay?: number;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const reduce = useReduceMotion();
+  if (reduce) {
+    return <Animated.View style={style}>{children}</Animated.View>;
+  }
+  return (
+    <Animated.View
+      entering={FadeInDown.duration(480)
+        .delay(delay)
+        .easing(Easing.out(Easing.cubic))
+        .springify()
+        .damping(20)
+        .stiffness(170)}
+      style={style}
+    >
+      {children}
+    </Animated.View>
+  );
+}

@@ -1,16 +1,19 @@
 export const colors = {
-  cream: "#F6F1EA",
-  creamDeep: "#EFE6DA",
-  sand: "#F3EBE0",
-  clay: "#C4714A",
-  clayDark: "#A85A38",
-  sage: "#5F8666",
-  sageLight: "#E4EFE6",
+  cream: "#F7F1E8",
+  creamDeep: "#F0E4D4",
+  sand: "#F6E8D8",
+  clay: "#D2693A",
+  clayDark: "#B45328",
+  coral: "#E36A4A",
+  coralDark: "#C45336",
+  peach: "#F3C4A8",
+  sage: "#5C8A68",
+  sageLight: "#E3F2E7",
   ink: "#241F1C",
   muted: "#6E6761",
-  border: "rgba(255,255,255,0.55)",
+  border: "rgba(255,255,255,0.58)",
   glass: "rgba(255,251,246,0.55)",
-  glassStrong: "rgba(255,251,246,0.78)",
+  glassStrong: "rgba(255,251,246,0.8)",
   hairline: "rgba(36,31,28,0.08)",
   white: "#FFFFFF",
   danger: "#B42318",
@@ -82,11 +85,11 @@ export const type = {
 };
 
 export const motion = {
-  snappy: { damping: 18, stiffness: 440, mass: 0.7 },
+  snappy: { damping: 16, stiffness: 380, mass: 0.65 },
   fluid: { damping: 22, stiffness: 200, mass: 0.9 },
-  pressIn: { damping: 20, stiffness: 400 },
-  pressOut: { damping: 18, stiffness: 320 },
-  driftMs: { clay: 12000, sage: 16000 },
+  pressIn: { damping: 16, stiffness: 420 },
+  pressOut: { damping: 11, stiffness: 240 },
+  driftMs: { clay: 9000, sage: 12000 },
 } as const;
 
 export const typeScale = {

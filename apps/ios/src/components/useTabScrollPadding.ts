@@ -12,9 +12,9 @@ export function useTabScrollPadding(extra = 0) {
 export function useScreenPadding() {
   const insets = useSafeAreaInsets();
   return {
-    paddingTop: insets.top + 12,
+    paddingTop: insets.top + space.sm,
     paddingBottom: insets.bottom + TAB_BAR_CLEARANCE,
     paddingHorizontal: space.lg,
-    gap: 20,
+    gap: space.lg,
   };
 }

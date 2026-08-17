@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import Animated, { Easing, FadeIn } from "react-native-reanimated";
+import { StyleSheet, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 import { getUserById } from "../domain/data";
 import {
@@ -10,9 +10,9 @@ import {
   hasMeetupStarted,
 } from "../domain/matching";
 import type { Meetup, RsvpStatus } from "../domain/types";
-import { colors, space, type, typeScale } from "../theme/tokens";
+import { colors, space } from "../theme/tokens";
 import { PressableScale } from "./motion";
-import { AvatarGroup, Button, Card } from "./ui";
+import { AvatarGroup, Body, Button, Card, Kicker, Title } from "./ui";
 import { useReduceMotion } from "./useReduceMotion";
 
 export function MeetupCard({
@@ -44,16 +44,14 @@ export function MeetupCard({
 
   return (
     <Card>
-      <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.kicker}>
+      <Kicker clay>
         {ended ? "Letztes Treffen" : `Nächstes Treffen · ${when}`}
         {isHost ? " · Du führst" : ""}
-      </Text>
-      <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.title}>
-        {meetup.title}
-      </Text>
-      <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.when}>
+      </Kicker>
+      <Title style={styles.title}>{meetup.title}</Title>
+      <Body style={styles.when}>
         {dateStr} · {meetup.time} Uhr
-      </Text>
+      </Body>
 
       <LocationBlock revealed={confirmed} location={meetup.location} />
 
@@ -63,73 +61,39 @@ export function MeetupCard({
             .map(([id]) => getUserById(id)?.initials)
             .filter((value): value is string => Boolean(value))}
         />
-        <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.hint}>
+        <Body muted style={styles.hint}>
           {attending.length === 0
             ? "Noch niemand fest zugesagt"
             : `${attending.map(([id]) => getUserById(id)?.name ?? "Mitglied").join(", ")}`}
           {started ? ` · ${here.length} wirklich da` : ""}
-        </Text>
+        </Body>
       </View>
 
       {!started && (
         <View style={styles.actionsCol}>
-          <PressableScale
-            haptic="success"
+          <Button
+            label={confirmed ? "Zugesagt" : "Zusagen"}
+            variant={confirmed ? "secondary" : "primary"}
+            haptic={confirmed ? "light" : "success"}
             onPress={() => onRsvp("yes")}
-            accessibilityLabel={confirmed ? "Zugesagt. Treffpunkt ist sichtbar." : "Zusagen. Danach siehst du den Treffpunkt."}
-            accessibilityState={{ selected: confirmed }}
-            style={[
-              styles.rsvpPrimary,
-              myRsvp === "pending" && styles.rsvpPrimaryCta,
-              confirmed && styles.rsvpConfirmed,
-              (myRsvp === "maybe" || myRsvp === "no") && styles.rsvpPrimaryIdle,
-            ]}
-          >
-            <Text
-              allowFontScaling
-              maxFontSizeMultiplier={typeScale.ui}
-              style={[
-                styles.rsvpPrimaryLabel,
-                confirmed && styles.rsvpLabelOn,
-                (myRsvp === "maybe" || myRsvp === "no") && styles.rsvpIdleLabel,
-              ]}
-            >
-              {confirmed ? "Zugesagt" : "Zusagen"}
-            </Text>
-          </PressableScale>
+          />
           <View style={styles.actions}>
-            <PressableScale
-              haptic="light"
-              onPress={() => onRsvp("maybe")}
-              accessibilityLabel="Vielleicht"
-              accessibilityState={{ selected: myRsvp === "maybe" }}
-              style={[styles.rsvp, myRsvp === "maybe" && styles.rsvpMaybe]}
-            >
-              <Text
-                allowFontScaling
-                maxFontSizeMultiplier={typeScale.ui}
-                style={[styles.rsvpLabel, myRsvp === "maybe" && styles.rsvpMaybeLabel]}
-              >
-                Vielleicht
-              </Text>
-            </PressableScale>
-            <PressableScale
-              haptic="light"
-              onPress={() => onRsvp("no")}
-              accessibilityLabel="Absagen"
-              accessibilityState={{ selected: myRsvp === "no" }}
-              style={[styles.rsvp, myRsvp === "no" && styles.rsvpNo]}
-            >
-              <Text
-                allowFontScaling
-                maxFontSizeMultiplier={typeScale.ui}
-                style={[styles.rsvpLabel, myRsvp === "no" && styles.rsvpLabelOn]}
-              >
-                Absagen
-              </Text>
-            </PressableScale>
+            <View style={{ flex: 1 }}>
+              <Button
+                label="Vielleicht"
+                variant={myRsvp === "maybe" ? "secondary" : "ghost"}
+                onPress={() => onRsvp("maybe")}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Button
+                label="Absagen"
+                variant={myRsvp === "no" ? "secondary" : "ghost"}
+                onPress={() => onRsvp("no")}
+              />
+            </View>
           </View>
-          <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.stand}>
+          <Body muted style={styles.stand}>
             {myRsvp === "yes"
               ? "Dein Stand: zugesagt"
               : myRsvp === "maybe"
@@ -137,31 +101,27 @@ export function MeetupCard({
                 : myRsvp === "no"
                   ? "Dein Stand: abgesagt"
                   : "Dein Stand: noch offen"}
-          </Text>
+          </Body>
         </View>
       )}
 
       {started && myRsvp === "yes" && !iAmHere && onCheckIn && (
-        <Button label="Ich bin da" onPress={onCheckIn} style={{ marginTop: 16 }} />
+        <Button label="Ich bin da" haptic="success" onPress={onCheckIn} style={{ marginTop: space.md }} />
       )}
       {iAmHere && (
-        <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.here}>
-          Du bist als da markiert.
-        </Text>
+        <Body style={styles.here}>Du bist als da markiert.</Body>
       )}
 
       {isHost && !ended && onEdit && (
-        <Button label="Termin ändern" variant="ghost" onPress={onEdit} style={{ marginTop: 8 }} />
+        <Button label="Termin ändern" variant="ghost" onPress={onEdit} style={{ marginTop: space.xs }} />
       )}
 
       {isHost && started && (
         <View style={styles.hostList} accessibilityRole="summary">
-          <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.hostTitle}>
-            Wer war wirklich da?
-          </Text>
-          <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.hint}>
+          <Title style={styles.hostTitle}>Wer war wirklich da?</Title>
+          <Body muted style={styles.hint}>
             Tippe den Namen: einmal = da, nochmal = nicht gekommen.
-          </Text>
+          </Body>
           {attending.map(([userId]) => {
             const user = getUserById(userId);
             const present = meetup.attendance?.[userId] === "here";
@@ -169,9 +129,7 @@ export function MeetupCard({
             const name = user?.name ?? "Mitglied";
             return (
               <View key={userId} style={styles.hostPerson}>
-                <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.hostName}>
-                  {name}
-                </Text>
+                <Body style={styles.hostName}>{name}</Body>
                 <View style={styles.hostToggles}>
                   <PressableScale
                     accessibilityLabel={`${name} als da markieren`}
@@ -180,13 +138,7 @@ export function MeetupCard({
                     onPress={() => onSetAttendance?.(userId, "here")}
                     style={[styles.hostChip, present && styles.hostChipOn]}
                   >
-                    <Text
-                      allowFontScaling
-                      maxFontSizeMultiplier={typeScale.ui}
-                      style={[styles.hostChipText, present && styles.rsvpLabelOn]}
-                    >
-                      Da
-                    </Text>
+                    <Body style={[styles.hostChipText, present && styles.hostChipTextOn]}>Da</Body>
                   </PressableScale>
                   <PressableScale
                     accessibilityLabel={`${name} als nicht gekommen markieren`}
@@ -194,13 +146,7 @@ export function MeetupCard({
                     onPress={() => onSetAttendance?.(userId, "no_show")}
                     style={[styles.hostChip, missed && styles.hostChipMiss]}
                   >
-                    <Text
-                      allowFontScaling
-                      maxFontSizeMultiplier={typeScale.ui}
-                      style={[styles.hostChipText, missed && styles.rsvpLabelOn]}
-                    >
-                      Nicht da
-                    </Text>
+                    <Body style={[styles.hostChipText, missed && styles.hostChipTextOn]}>Nicht da</Body>
                   </PressableScale>
                 </View>
               </View>
@@ -224,91 +170,60 @@ function LocationBlock({ revealed, location }: { revealed: boolean; location: st
   if (revealed) {
     return (
       <Animated.View
-        entering={justOpened ? FadeIn.duration(320).easing(Easing.out(Easing.cubic)) : undefined}
+        entering={justOpened ? FadeIn.springify().damping(22).stiffness(180) : undefined}
         style={[styles.place, styles.placeOpen]}
       >
-        <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.placeLabel}>
-          Ihr trefft euch hier
-        </Text>
-        <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.placeText}>
-          {location}
-        </Text>
+        <Kicker style={styles.placeLabel}>Ihr trefft euch hier</Kicker>
+        <Body style={styles.placeText}>{location}</Body>
       </Animated.View>
     );
   }
 
   return (
     <View style={styles.place}>
-      <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.placeText}>
-        Ort siehst du nach der Zusage
-      </Text>
-      <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.hint}>
+      <Body style={styles.placeText}>Ort siehst du nach der Zusage</Body>
+      <Body muted style={styles.hint}>
         So bleibt der Treffpunkt nur bei der echten Runde.
-      </Text>
+      </Body>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  kicker: { ...type.kicker, color: colors.coral, textTransform: "none", marginBottom: 6 },
-  title: { ...type.hero, color: colors.ink },
-  when: { marginTop: 6, ...type.subtitle, color: colors.ink, fontWeight: "600" },
+  title: { marginTop: 4 },
+  when: { marginTop: 6, fontWeight: "600" },
   place: {
     marginTop: space.md,
-    backgroundColor: "rgba(255,255,255,0.45)",
+    backgroundColor: colors.glassSoft,
     borderRadius: 16,
-    padding: 14,
+    padding: space.sm,
   },
   placeOpen: {
     backgroundColor: colors.sageLight,
   },
-  placeLabel: { ...type.kicker, color: colors.sage, textTransform: "none", marginBottom: 4 },
-  placeText: { color: colors.ink, fontSize: type.callout.fontSize, lineHeight: type.callout.lineHeight, fontWeight: "600" },
-  hint: { ...type.caption, color: colors.muted, marginTop: 4 },
+  placeLabel: { color: colors.sage, marginBottom: 4 },
+  placeText: { fontWeight: "600" },
+  hint: { marginTop: 4, fontSize: 13, lineHeight: 17, fontWeight: "500" },
   row: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: space.md },
-  actionsCol: { marginTop: space.lg, gap: 8 },
-  actions: { flexDirection: "row", gap: 8 },
-  rsvpPrimary: {
-    minHeight: 54,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.4)",
-  },
-  rsvpPrimaryCta: { backgroundColor: colors.coral },
-  rsvpConfirmed: { backgroundColor: colors.sage },
-  rsvpPrimaryIdle: { backgroundColor: "rgba(255,255,255,0.4)" },
-  rsvpPrimaryLabel: { fontWeight: "700", color: colors.white, fontSize: type.subtitle.fontSize },
-  rsvpIdleLabel: { color: colors.ink },
-  rsvp: {
-    flex: 1,
-    minHeight: 48,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.4)",
-  },
-  rsvpMaybe: { backgroundColor: colors.creamDeep },
-  rsvpMaybeLabel: { color: colors.ink, fontWeight: "700" },
-  rsvpNo: { backgroundColor: colors.muted },
-  rsvpLabel: { fontWeight: "600", color: colors.ink },
-  rsvpLabelOn: { color: colors.white },
-  stand: { ...type.caption, color: colors.coral, marginTop: 4 },
-  here: { marginTop: 14, color: colors.sage, fontWeight: "600" },
-  hostList: { marginTop: 16, gap: 10 },
-  hostTitle: { fontWeight: "700", color: colors.ink, fontSize: type.subtitle.fontSize },
-  hostPerson: { gap: 8 },
-  hostName: { color: colors.ink, fontWeight: "600" },
-  hostToggles: { flexDirection: "row", gap: 8 },
+  actionsCol: { marginTop: space.lg, gap: space.xs },
+  actions: { flexDirection: "row", gap: space.xs },
+  stand: { marginTop: 4, color: colors.coral, fontSize: 13, lineHeight: 17 },
+  here: { marginTop: space.sm, color: colors.sage, fontWeight: "600" },
+  hostList: { marginTop: space.md, gap: 10 },
+  hostTitle: { marginBottom: 4 },
+  hostPerson: { gap: space.xs },
+  hostName: { fontWeight: "600" },
+  hostToggles: { flexDirection: "row", gap: space.xs },
   hostChip: {
     flex: 1,
     minHeight: 44,
     borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.45)",
+    backgroundColor: colors.glassSoft,
   },
   hostChipOn: { backgroundColor: colors.sage },
   hostChipMiss: { backgroundColor: colors.muted },
-  hostChipText: { fontWeight: "600", color: colors.ink },
+  hostChipText: { fontWeight: "600", fontSize: 15, lineHeight: 20 },
+  hostChipTextOn: { color: colors.white },
 });

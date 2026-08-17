@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, TextInput, View } from "react-native";
 
 import { getUserById } from "../domain/data";
 import type { Moment } from "../domain/types";
-import { colors, space, type } from "../theme/tokens";
-import { ActionRow, Avatar, Button, Card } from "./ui";
+import { colors, space } from "../theme/tokens";
+import { ActionRow, Avatar, Body, Button, Card, EmptyState, Title, fieldStyle } from "./ui";
 
 export function MomentFeed({
   moments,
@@ -26,10 +26,10 @@ export function MomentFeed({
   }
 
   return (
-    <View style={{ gap: 12 }}>
+    <View style={{ gap: space.sm }}>
       {open ? (
         <Card>
-          <Text style={styles.prompt}>Was möchtest du der Runde hinterlassen?</Text>
+          <Title style={styles.prompt}>Was möchtest du der Runde hinterlassen?</Title>
           <TextInput
             value={draft}
             onChangeText={setDraft}
@@ -41,9 +41,9 @@ export function MomentFeed({
           <View style={{ marginTop: 10 }}>
             <ActionRow
               primary={
-                <Button label="Teilen" onPress={submit} disabled={!draft.trim()} />
+                <Button label="Teilen" haptic="success" onPress={submit} disabled={!draft.trim()} />
               }
-              secondary={<Button label="Abbrechen" variant="secondary" onPress={() => setOpen(false)} />}
+              secondary={<Button label="Abbrechen" variant="ghost" onPress={() => setOpen(false)} />}
             />
           </View>
         </Card>
@@ -60,44 +60,45 @@ export function MomentFeed({
           minute: "2-digit",
         });
         return (
-          <Card key={moment.id}>
+          <Card key={moment.id} tone="soft">
             <View style={styles.head}>
               <Avatar initials={author?.initials ?? "?"} size={32} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.author}>
+                <Body style={styles.author}>
                   {author?.id === currentUserId ? "Du" : author?.name ?? "Mitglied"}
-                </Text>
-                <Text style={styles.when}>{when}</Text>
+                </Body>
+                <Body muted style={styles.when}>{when}</Body>
               </View>
             </View>
             {moment.type === "photo" ? (
-              <Text style={styles.content}>📷 {moment.caption ?? "Ein Foto aus dem Kreis"}</Text>
+              <Body style={styles.content}>📷 {moment.caption ?? "Ein Foto aus dem Kreis"}</Body>
             ) : (
-              <Text style={styles.content}>{moment.content}</Text>
+              <Body style={styles.content}>{moment.content}</Body>
             )}
           </Card>
         );
       })}
 
       {moments.length === 0 && (
-        <Text style={styles.empty}>Noch still hier. Der erste Satz darf klein sein.</Text>
+        <EmptyState
+          kicker="Noch still"
+          title="Der erste Satz darf klein sein"
+          body="Kein Feed. Nur ein Satz für die Runde, wenn dir danach ist."
+        />
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  prompt: { ...type.subtitle, color: colors.ink, marginBottom: 8 },
+  prompt: { marginBottom: space.xs },
   input: {
+    ...fieldStyle,
     minHeight: 88,
-    color: colors.ink,
-    fontSize: type.body.fontSize,
-    lineHeight: type.body.lineHeight,
     textAlignVertical: "top",
   },
   head: { flexDirection: "row", gap: 10, alignItems: "center" },
-  author: { ...type.callout, color: colors.ink },
-  when: { ...type.caption, color: colors.muted },
-  content: { marginTop: 10, ...type.body, color: colors.ink },
-  empty: { ...type.body, textAlign: "center", color: colors.muted, paddingVertical: space.lg },
+  author: { fontWeight: "600" },
+  when: { fontSize: 13, lineHeight: 17 },
+  content: { marginTop: 10 },
 });

@@ -1,10 +1,11 @@
 import { useEffect } from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useApp } from "../state/store";
-import { colors, radius, type } from "../theme/tokens";
+import { colors, motion, radius, space, type } from "../theme/tokens";
+import { GlassSurface } from "./glass";
 import { useReduceMotion } from "./useReduceMotion";
 
 export function FlashBanner() {
@@ -24,29 +25,36 @@ export function FlashBanner() {
     <Animated.View
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
-      entering={reduceMotion ? undefined : FadeIn.duration(160)}
-      exiting={reduceMotion ? undefined : FadeOut.duration(160)}
-      style={[styles.banner, { top: insets.top + 8 }]}
+      entering={
+        reduceMotion
+          ? undefined
+          : FadeIn.springify().damping(motion.enter.damping).stiffness(motion.enter.stiffness)
+      }
+      exiting={reduceMotion ? undefined : FadeOut.duration(180)}
+      style={[styles.wrap, { top: insets.top + space.xs }]}
     >
-      <Text style={styles.text}>{state.flash}</Text>
+      <GlassSurface tone="strong" style={styles.banner}>
+        <Animated.Text style={styles.text}>{state.flash}</Animated.Text>
+      </GlassSurface>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  banner: {
+  wrap: {
     position: "absolute",
-    left: 16,
-    right: 16,
+    left: space.md,
+    right: space.md,
     zIndex: 50,
-    backgroundColor: colors.ink,
+  },
+  banner: {
     borderRadius: radius.md,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "rgba(227,106,74,0.28)",
   },
   text: {
     ...type.callout,
-    color: colors.cream,
+    color: colors.ink,
     textAlign: "center",
   },
 });

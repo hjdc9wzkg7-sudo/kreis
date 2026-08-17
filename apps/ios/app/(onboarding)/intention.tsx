@@ -1,11 +1,11 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { FormatGuideCard } from "@/src/components/FormatGuideCard";
 import { Atmosphere } from "@/src/components/glass";
-import { Body, Button, Chip, ProgressDots, Title } from "@/src/components/ui";
+import { Body, Button, Chip, ProgressDots, Title, fieldStyle } from "@/src/components/ui";
 import {
   availabilityLabels,
   formatLabels,
@@ -16,7 +16,7 @@ import {
 import { intentionPace } from "@/src/domain/matching";
 import type { Availability, FormatType, SocialPace, UserIntention } from "@/src/domain/types";
 import { useApp } from "@/src/state/store";
-import { colors, radius, space, type } from "@/src/theme/tokens";
+import { colors, space } from "@/src/theme/tokens";
 
 const steps = ["name", "pace", "whenwhere", "formats"] as const;
 
@@ -132,7 +132,6 @@ export default function IntentionScreen() {
                   <Chip
                     key={format}
                     label={formatLabels[format]}
-                    tone="sage"
                     selected={intention.formats.includes(format)}
                     onPress={() => toggleFormat(format)}
                   />
@@ -163,12 +162,7 @@ const styles = StyleSheet.create({
   main: { paddingVertical: 20, gap: 14 },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 8 },
   input: {
-    marginTop: 8,
-    backgroundColor: "rgba(255,255,255,0.55)",
-    borderRadius: radius.md,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    fontSize: type.subtitle.fontSize,
-    color: colors.ink,
+    ...fieldStyle,
+    marginTop: space.xs,
   },
 });

@@ -5,8 +5,10 @@ import { ReactNode, useEffect } from "react";
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 
-import { colors, motion, radius } from "../theme/tokens";
+import { atmosphere, colors, glass, motion, radius, space } from "../theme/tokens";
 import { useReduceMotion } from "./useReduceMotion";
+
+export type GlassTone = "soft" | "regular" | "strong";
 
 function canUseNativeGlass() {
   try {
@@ -46,9 +48,9 @@ function DriftOrb({
     transform: [
       { translateX: progress.value * x },
       { translateY: progress.value * y },
-      { scale: 1 + progress.value * 0.1 },
+      { scale: 1 + progress.value * 0.04 },
     ],
-    opacity: 0.88 + progress.value * 0.12,
+    opacity: 0.92 + progress.value * 0.08,
   }));
 
   return <Animated.View pointerEvents="none" style={[style, animated]} />;
@@ -58,13 +60,14 @@ export function Atmosphere({ children }: { children: ReactNode }) {
   return (
     <View style={styles.atmosphere}>
       <LinearGradient
-        colors={["#FFF6EE", "#F8DCC8", "#E4F0E6"]}
-        start={{ x: 0.05, y: 0 }}
-        end={{ x: 0.95, y: 1 }}
+        colors={[...atmosphere.gradient]}
+        start={{ x: 0.08, y: 0 }}
+        end={{ x: 0.92, y: 1 }}
         style={StyleSheet.absoluteFill}
       />
-      <DriftOrb style={styles.orbClay} x={-40} y={28} duration={motion.driftMs.clay} />
-      <DriftOrb style={styles.orbSage} x={32} y={-24} duration={motion.driftMs.sage} />
+      <DriftOrb style={styles.orbCoral} x={-28} y={20} duration={motion.driftMs.clay} />
+      <DriftOrb style={styles.orbPeach} x={18} y={-16} duration={motion.driftMs.peach} />
+      <DriftOrb style={styles.orbSage} x={22} y={-18} duration={motion.driftMs.sage} />
       {children}
     </View>
   );
@@ -74,15 +77,23 @@ export function GlassSurface({
   children,
   style,
   padded = true,
-  intensity = 36,
+  intensity,
+  tone = "regular",
   native = true,
 }: {
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   padded?: boolean;
   intensity?: number;
+  tone?: GlassTone;
   native?: boolean;
 }) {
+  const blur = intensity ?? glass[tone];
+  const fill =
+    tone === "strong" ? colors.glassStrong : tone === "soft" ? colors.glassSoft : colors.glass;
+  const nativeStyle = tone === "soft" ? "clear" : "regular";
+  const tint = tone === "strong" ? colors.cream : colors.cream;
+
   const content = (
     <View style={[padded && styles.pad, style]} pointerEvents="box-none">
       {children}
@@ -92,8 +103,8 @@ export function GlassSurface({
   if (native && canUseNativeGlass()) {
     return (
       <GlassView
-        glassEffectStyle="regular"
-        tintColor={colors.cream}
+        glassEffectStyle={nativeStyle}
+        tintColor={tint}
         style={[styles.clip, style]}
       >
         {content}
@@ -102,8 +113,8 @@ export function GlassSurface({
   }
 
   return (
-    <View style={[styles.fallback, styles.clip, style]}>
-      <BlurView intensity={intensity} tint="light" style={StyleSheet.absoluteFill} />
+    <View style={[styles.fallback, { backgroundColor: fill }, styles.clip, style]}>
+      <BlurView intensity={blur} tint="light" style={StyleSheet.absoluteFill} />
       <View style={styles.sheen} pointerEvents="none" />
       {content}
     </View>
@@ -116,44 +127,52 @@ const styles = StyleSheet.create({
     backgroundColor: colors.cream,
     overflow: "hidden",
   },
-  orbClay: {
-    position: "absolute",
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    backgroundColor: "rgba(227,106,74,0.32)",
-    top: -96,
-    right: -72,
-  },
-  orbSage: {
+  orbCoral: {
     position: "absolute",
     width: 280,
     height: 280,
     borderRadius: 140,
-    backgroundColor: "rgba(92,138,104,0.26)",
-    bottom: 64,
-    left: -84,
+    backgroundColor: atmosphere.orbCoral,
+    top: -88,
+    right: -64,
+  },
+  orbPeach: {
+    position: "absolute",
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: atmosphere.orbPeach,
+    top: "38%",
+    right: -90,
+  },
+  orbSage: {
+    position: "absolute",
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: atmosphere.orbSage,
+    bottom: 72,
+    left: -96,
   },
   clip: {
     borderRadius: radius.lg,
     overflow: "hidden",
   },
   fallback: {
-    backgroundColor: colors.glass,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
     shadowColor: "#241F1C",
-    shadowOpacity: 0.08,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
   },
   sheen: {
     ...StyleSheet.absoluteFillObject,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.7)",
+    borderColor: "rgba(255,255,255,0.62)",
     borderRadius: radius.lg,
   },
   pad: {
-    padding: 18,
+    padding: space.lg,
   },
 });

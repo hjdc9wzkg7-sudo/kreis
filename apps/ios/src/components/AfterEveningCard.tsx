@@ -1,6 +1,7 @@
 import { StyleSheet, View } from "react-native";
 
 import type { Meetup } from "../domain/types";
+import { space } from "../theme/tokens";
 import { Body, Button, Card, Title } from "./ui";
 
 export function AfterEveningCard({
@@ -21,17 +22,18 @@ export function AfterEveningCard({
         {meetup.title} — würdest du das wieder tun?
       </Body>
       <View style={styles.row}>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1.45 }}>
           <Button
             label="Ja"
             variant={wouldRepeat === true ? "primary" : "secondary"}
+            haptic="success"
             onPress={() => onRate(true)}
           />
         </View>
         <View style={{ flex: 1 }}>
           <Button
             label="Nein"
-            variant="secondary"
+            variant="ghost"
             onPress={() => onRate(false)}
           />
         </View>
@@ -41,6 +43,6 @@ export function AfterEveningCard({
 }
 
 const styles = StyleSheet.create({
-  lead: { marginTop: 8, marginBottom: 14 },
-  row: { flexDirection: "row", gap: 8 },
+  lead: { marginTop: space.xs, marginBottom: space.sm },
+  row: { flexDirection: "row", gap: space.xs, alignItems: "stretch" },
 });

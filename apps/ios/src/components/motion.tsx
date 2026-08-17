@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { ReactNode } from "react";
 import { Pressable, type StyleProp, type ViewStyle } from "react-native";
-import Animated, { Easing, FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 
 import { motion } from "../theme/tokens";
 import { useReduceMotion } from "./useReduceMotion";
@@ -14,6 +14,7 @@ export function PressableScale({
   style,
   disabled,
   haptic = "light",
+  pressedScale = motion.pressScale,
   accessibilityLabel,
   accessibilityRole = "button",
   accessibilityState,
@@ -22,7 +23,8 @@ export function PressableScale({
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
-  haptic?: "light" | "success" | "medium" | "none";
+  haptic?: "light" | "success" | "medium" | "warning" | "none";
+  pressedScale?: number;
   accessibilityLabel?: string;
   accessibilityRole?: "button" | "link" | "none";
   accessibilityState?: { disabled?: boolean; selected?: boolean };
@@ -40,11 +42,8 @@ export function PressableScale({
       accessibilityLabel={accessibilityLabel}
       accessibilityState={{ disabled: Boolean(disabled), ...accessibilityState }}
       onPressIn={() => {
-        if (haptic === "medium" || haptic === "success") {
-          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }
         if (!reduceMotion) {
-          scale.value = withSpring(0.94, motion.pressIn);
+          scale.value = withSpring(pressedScale, motion.pressIn);
         }
       }}
       onPressOut={() => {
@@ -54,7 +53,9 @@ export function PressableScale({
       }}
       onPress={() => {
         if (haptic === "light") void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        if (haptic === "medium") void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         if (haptic === "success") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        if (haptic === "warning") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
         onPress?.();
       }}
       style={[animated, style]}
@@ -79,12 +80,11 @@ export function Enter({
   }
   return (
     <Animated.View
-      entering={FadeInDown.duration(480)
-        .delay(delay)
-        .easing(Easing.out(Easing.cubic))
-        .springify()
-        .damping(20)
-        .stiffness(170)}
+      entering={FadeInDown.springify()
+        .damping(motion.enter.damping)
+        .stiffness(motion.enter.stiffness)
+        .mass(motion.enter.mass)
+        .delay(delay)}
       style={style}
     >
       {children}

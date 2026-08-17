@@ -1,24 +1,25 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, type Href } from "expo-router";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 import { CircleCard } from "@/src/components/CircleCard";
-import { Atmosphere } from "@/src/components/glass";
+import { Atmosphere, GlassSurface } from "@/src/components/glass";
 import { PressableScale } from "@/src/components/motion";
-import { Avatar, Button, Card, Display, EmptyState, Kicker, SectionLabel } from "@/src/components/ui";
+import { Avatar, Body, Button, Card, EmptyState, Kicker, ScreenIntro, SectionLabel, Title } from "@/src/components/ui";
 import { formatLabels, paceLabels, resolveFormat } from "@/src/domain/copy";
 import { hostedCircleNeedingSchedule, hostedCircles, intentionPace } from "@/src/domain/matching";
 import { useScreenPadding } from "@/src/components/useTabScrollPadding";
 import { getReputation } from "@/src/domain/trust";
 import { openCircle } from "@/src/navigation";
 import { useApp } from "@/src/state/store";
-import { colors, space, type } from "@/src/theme/tokens";
+import { colors, radius, space, type } from "@/src/theme/tokens";
 
 export default function ProfileScreen() {
   const { state, dispatch } = useApp();
   const reputation = getReputation(state);
   const { intention } = state.currentUser;
   const screenPad = useScreenPadding();
+  const empty = reputation.guestCircles.length === 0 && reputation.hostedCircles.length === 0;
 
   return (
     <Atmosphere>
@@ -29,42 +30,42 @@ export default function ProfileScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.top}>
-            <View style={{ flex: 1, gap: 4 }}>
-              <Kicker clay>Profil · Demo</Kicker>
-              <Display>{state.currentUser.name}</Display>
+            <View style={{ flex: 1 }}>
+              <ScreenIntro kicker="Profil · Demo" display={state.currentUser.name} />
             </View>
             <PressableScale
               accessibilityLabel="Einstellungen"
               onPress={() => router.push("/(tabs)/profil/einstellungen" as Href)}
-              style={styles.gear}
             >
-              <Ionicons name="settings-outline" size={22} color={colors.ink} />
+              <GlassSurface tone="soft" padded={false} style={styles.gear}>
+                <Ionicons name="settings-outline" size={22} color={colors.ink} />
+              </GlassSurface>
             </PressableScale>
           </View>
 
-          <Card>
+          <Card tone="strong">
             <View style={styles.identity}>
               <Avatar initials={state.currentUser.initials} size={64} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.place}>{intention.neighborhood}</Text>
-                <Text style={styles.bio}>{intention.bio}</Text>
+                <Title style={styles.place}>{intention.neighborhood}</Title>
+                <Body muted style={styles.bio}>{intention.bio}</Body>
               </View>
             </View>
             <View style={styles.tags}>
               {intention.formats.map((format) => (
                 <View key={format} style={styles.tag}>
-                  <Text style={styles.tagText}>{formatLabels[resolveFormat(format)]}</Text>
+                  <Body style={styles.tagText}>{formatLabels[resolveFormat(format)]}</Body>
                 </View>
               ))}
             </View>
           </Card>
 
-          <Card>
+          <Card tone="soft">
             <SectionLabel>Was zu dir passt</SectionLabel>
-            <Text style={styles.place}>{paceLabels[intentionPace(state.currentUser)]}</Text>
-            <Text style={styles.bio}>
+            <Title style={styles.place}>{paceLabels[intentionPace(state.currentUser)]}</Title>
+            <Body muted style={styles.bio}>
               {intention.neighborhood} · {intention.formats.map((item) => formatLabels[resolveFormat(item)]).join(", ")}
-            </Text>
+            </Body>
             <Button
               label="Anpassen"
               variant="ghost"
@@ -81,28 +82,28 @@ export default function ProfileScreen() {
                 accessibilityRole="text"
                 accessibilityLabel={`${mark.title}. ${mark.hint}${mark.earned ? " Erreicht." : " Noch nicht."}`}
               >
-                <Text style={[styles.markTitle, mark.earned ? styles.markTitleOn : styles.markTitleOff]}>
+                <Kicker style={mark.earned ? styles.markTitleOn : styles.markTitleOff}>
                   {mark.earned ? `✓  ${mark.title}` : mark.title}
-                </Text>
-                <Text style={styles.markHint}>{mark.hint}</Text>
+                </Kicker>
+                <Body muted style={styles.markHint}>{mark.hint}</Body>
               </View>
             ))}
           </View>
 
           <View style={styles.stats}>
-            <Card style={styles.stat}>
-              <Text style={styles.statValue}>{reputation.confirmedMeetups}</Text>
-              <Text style={styles.statLabel}>Abende da gewesen</Text>
+            <Card tone="soft" style={styles.stat}>
+              <Title style={styles.statValue}>{reputation.confirmedMeetups}</Title>
+              <Body muted style={styles.statLabel}>Abende da gewesen</Body>
             </Card>
-            <Card style={styles.stat}>
-              <Text style={styles.statValue}>{reputation.hostedSeasons}</Text>
-              <Text style={styles.statLabel}>Kreise geführt</Text>
+            <Card tone="soft" style={styles.stat}>
+              <Title style={styles.statValue}>{reputation.hostedSeasons}</Title>
+              <Body muted style={styles.statLabel}>Kreise geführt</Body>
             </Card>
-            <Card style={styles.stat}>
-              <Text style={styles.statValue}>
+            <Card tone="soft" style={styles.stat}>
+              <Title style={styles.statValue}>
                 {reputation.reliabilityPercent == null ? "–" : `${reputation.reliabilityPercent}%`}
-              </Text>
-              <Text style={styles.statLabel}>Wirklich erschienen</Text>
+              </Title>
+              <Body muted style={styles.statLabel}>Wirklich erschienen</Body>
             </Card>
           </View>
 
@@ -122,7 +123,7 @@ export default function ProfileScreen() {
             onPress={() => router.push("/(tabs)/profil/host-kits" as Href)}
           />
 
-          {reputation.guestCircles.length === 0 && reputation.hostedCircles.length === 0 && (
+          {empty && (
             <EmptyState
               kicker="Noch still hier"
               title="Dein Kreis beginnt klein"
@@ -131,12 +132,13 @@ export default function ProfileScreen() {
           )}
 
           {reputation.guestCircles.length > 0 && (
-            <View style={{ gap: 12 }}>
+            <View style={{ gap: space.sm }}>
               <SectionLabel>Als Teilnehmer:in</SectionLabel>
-              {reputation.guestCircles.map((circle) => (
+              {reputation.guestCircles.map((circle, index) => (
                 <CircleCard
                   key={circle.id}
                   circle={circle}
+                  delay={Math.min(index * 40, 160)}
                   onPress={() => openCircle(circle.id, "profil")}
                   currentUserId={state.currentUser.id}
                 />
@@ -145,12 +147,13 @@ export default function ProfileScreen() {
           )}
 
           {reputation.hostedCircles.length > 0 && (
-            <View style={{ gap: 12 }}>
+            <View style={{ gap: space.sm }}>
               <SectionLabel>Als Gastgeber:in</SectionLabel>
-              {reputation.hostedCircles.map((circle) => (
+              {reputation.hostedCircles.map((circle, index) => (
                 <CircleCard
                   key={circle.id}
                   circle={circle}
+                  delay={Math.min(index * 40, 160)}
                   onPress={() => openCircle(circle.id, "profil")}
                   currentUserId={state.currentUser.id}
                 />
@@ -166,40 +169,38 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   content: {},
-  top: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" },
+  top: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: space.sm },
   gear: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(255,255,255,0.55)",
     alignItems: "center",
     justifyContent: "center",
   },
   identity: { flexDirection: "row", gap: 14, alignItems: "flex-start" },
-  place: { ...type.subtitle, fontWeight: "600", color: colors.ink },
-  bio: { ...type.body, color: colors.muted, marginTop: 4 },
-  tags: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 14 },
+  place: { fontSize: 17, lineHeight: 22 },
+  bio: { marginTop: 4 },
+  tags: { flexDirection: "row", flexWrap: "wrap", gap: space.xs, marginTop: space.sm },
   tag: {
-    backgroundColor: "rgba(255,255,255,0.5)",
-    borderRadius: 999,
-    paddingHorizontal: 12,
+    backgroundColor: colors.glass,
+    borderRadius: radius.pill,
+    paddingHorizontal: space.sm,
     paddingVertical: 6,
   },
-  tagText: { ...type.caption, color: colors.sage, fontWeight: "600" },
-  marks: { gap: 8 },
-  mark: { borderRadius: 16, paddingHorizontal: 14, paddingVertical: 12 },
+  tagText: { ...type.caption, color: colors.coralDark, fontWeight: "600" },
+  marks: { gap: space.xs },
+  mark: { borderRadius: 16, paddingHorizontal: space.sm, paddingVertical: space.sm },
   markOn: { backgroundColor: colors.sageLight },
   markOff: {
     backgroundColor: "transparent",
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(36,31,28,0.12)",
+    borderColor: colors.hairline,
   },
-  markTitle: { ...type.callout },
-  markTitleOn: { color: colors.sage, fontWeight: "700" },
-  markTitleOff: { color: colors.muted, fontWeight: "600" },
-  markHint: { ...type.caption, color: colors.muted, marginTop: 4 },
-  stats: { flexDirection: "row", gap: 8 },
+  markTitleOn: { color: colors.sage },
+  markTitleOff: { color: colors.muted },
+  markHint: { marginTop: 4, fontSize: 13, lineHeight: 17 },
+  stats: { flexDirection: "row", gap: space.xs },
   stat: { flex: 1 },
-  statValue: { ...type.title, fontWeight: "700", color: colors.ink },
-  statLabel: { ...type.caption, color: colors.muted, marginTop: 4 },
+  statValue: { fontWeight: "700" },
+  statLabel: { marginTop: 4, fontSize: 13, lineHeight: 17 },
 });

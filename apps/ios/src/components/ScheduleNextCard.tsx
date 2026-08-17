@@ -3,8 +3,8 @@ import { StyleSheet, TextInput, View } from "react-native";
 
 import { upcomingDayOptions } from "../domain/matching";
 import type { Circle, Meetup } from "../domain/types";
-import { colors, radius, type } from "../theme/tokens";
-import { ActionRow, Body, Button, Card, Chip, Title } from "./ui";
+import { colors } from "../theme/tokens";
+import { ActionRow, Body, Button, Card, Chip, Title, fieldStyle } from "./ui";
 
 const TIME_OPTIONS = ["10:00", "12:00", "14:00", "16:00", "17:00", "18:00", "19:00", "20:00"] as const;
 
@@ -106,7 +106,7 @@ export function ScheduleNextCard({
               }
             />
           }
-          secondary={<Button label="Abbrechen" variant="secondary" onPress={onCancel} />}
+          secondary={<Button label="Abbrechen" variant="ghost" onPress={onCancel} />}
         />
       ) : (
         <Button
@@ -130,12 +130,7 @@ const styles = StyleSheet.create({
   lead: { marginTop: 8, marginBottom: 12 },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 10 },
   input: {
-    backgroundColor: "rgba(255,255,255,0.55)",
-    borderRadius: radius.md,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    color: colors.ink,
-    fontSize: type.subtitle.fontSize,
+    ...fieldStyle,
     marginBottom: 12,
   },
 });

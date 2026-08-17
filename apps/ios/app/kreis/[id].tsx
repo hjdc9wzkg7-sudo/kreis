@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -11,7 +12,7 @@ import { Atmosphere } from "@/src/components/glass";
 import { MeetupCard } from "@/src/components/MeetupCard";
 import { MomentFeed } from "@/src/components/MomentFeed";
 import { ScheduleNextCard } from "@/src/components/ScheduleNextCard";
-import { Avatar, Button, Card, EmptyState, SegmentedControl } from "@/src/components/ui";
+import { Avatar, Body, Button, Card, EmptyState, Kicker, SegmentedControl, Title } from "@/src/components/ui";
 import { FormatGuideCard } from "@/src/components/FormatGuideCard";
 import { formatIcons, formatLabels, resolveFormat } from "@/src/domain/copy";
 import { getUserById } from "@/src/domain/data";
@@ -24,7 +25,7 @@ import {
 } from "@/src/domain/matching";
 import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
 import { useApp } from "@/src/state/store";
-import { colors, space, type } from "@/src/theme/tokens";
+import { colors, space } from "@/src/theme/tokens";
 
 type Tab = "treffen" | "momente" | "info";
 
@@ -67,6 +68,7 @@ export default function CircleDetailScreen() {
           text: "Verlassen",
           style: "destructive",
           onPress: () => {
+            void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
             dispatch({ type: "LEAVE_CIRCLE", circleId: circle.id });
             goToOrigin();
           },
@@ -101,7 +103,7 @@ export default function CircleDetailScreen() {
           accessibilityLabel="Zurück"
           style={styles.backHit}
         >
-          <Ionicons name="chevron-back" size={22} color={colors.clayDark} />
+          <Ionicons name="chevron-back" size={22} color={colors.coralDark} />
           <Text style={styles.backLabel}>Zurück</Text>
         </Pressable>
       ),
@@ -165,35 +167,28 @@ export default function CircleDetailScreen() {
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}
         >
-          <Card>
-            <Text style={styles.kicker}>
+          <Card tone="strong">
+            <Kicker>
               {formatIcons[resolveFormat(circle.format)]} {formatLabels[resolveFormat(circle.format)]} · {circle.neighborhood}
-            </Text>
-            <Text style={styles.meta}>
+            </Kicker>
+            <Body muted style={styles.meta}>
               {isHost ? "Du führst diesen Kreis" : `Gastgeber:in ${circle.hostName}`}
-            </Text>
-            <Text style={styles.seats}>{openSeatsLabel(circle)}</Text>
-            <Text style={styles.season}>
+            </Body>
+            <Body style={styles.seats}>{openSeatsLabel(circle)}</Body>
+            <Body muted style={styles.season}>
               Woche {circle.season.weekNumber} von {circle.season.totalWeeks}
               {Math.max(0, circle.season.totalWeeks - circle.season.weekNumber) > 0
                 ? ` · noch ${circle.season.totalWeeks - circle.season.weekNumber} Treffen`
                 : " · letzte Woche dieser Saison"}
-            </Text>
-            <Text style={styles.ritual}>Als Nächstes: {circle.season.ritual}</Text>
+            </Body>
+            <Body muted style={styles.ritual}>Als Nächstes: {circle.season.ritual}</Body>
             <SeasonBar week={circle.season.weekNumber} total={circle.season.totalWeeks} />
             {!isMember && (
               <Button
                 label="Dabei sein"
+                haptic="success"
                 onPress={() => dispatch({ type: "JOIN_CIRCLE", circleId: circle.id })}
-                style={{ marginTop: 16 }}
-              />
-            )}
-            {isMember && !isHost && (
-              <Button
-                label="Kreis verlassen"
-                variant="ghost"
-                onPress={leaveCircle}
-                style={{ marginTop: 8 }}
+                style={{ marginTop: space.md }}
               />
             )}
           </Card>
@@ -255,15 +250,15 @@ export default function CircleDetailScreen() {
                   }
                 />
               ) : (
-                <Card>
-                  <Text style={styles.blockTitle}>
+                <Card tone="soft">
+                  <Title style={styles.blockTitle}>
                     {lastEnded ? lastEnded.title : "Noch kein Termin"}
-                  </Text>
-                  <Text style={styles.body}>
+                  </Title>
+                  <Body muted>
                     {isHost
                       ? "Leg das nächste Treffen fest."
                       : `${circle.hostName} plant das nächste Treffen.`}
-                  </Text>
+                  </Body>
                 </Card>
               )}
             </View>
@@ -277,35 +272,39 @@ export default function CircleDetailScreen() {
                 onAdd={(content) => dispatch({ type: "ADD_MOMENT", circleId: circle.id, content })}
               />
             ) : (
-              <Text style={styles.empty}>Momente nur für Mitglieder.</Text>
+              <EmptyState
+                kicker="Nur die Runde"
+                title="Momente nur für Mitglieder"
+                body="Wenn du dabei bist, kannst du der Gruppe einen Satz hinterlassen. Kein Feed."
+              />
             ))}
 
           {tab === "info" && (
             <View style={{ gap: 12 }}>
               <FormatGuideCard format={circle.format} />
-              <Card>
-                <Text style={styles.blockTitle}>Über diesen Kreis</Text>
-                <Text style={styles.body}>{circle.description}</Text>
+              <Card tone="soft">
+                <Title style={styles.blockTitle}>Über diesen Kreis</Title>
+                <Body muted>{circle.description}</Body>
               </Card>
-              <Card>
-                <Text style={styles.blockTitle}>Mitglieder</Text>
+              <Card tone="soft">
+                <Title style={styles.blockTitle}>Mitglieder</Title>
                 {members.map((member) => (
                   <View key={member.id} style={styles.member}>
                     <Avatar initials={member.initials} />
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.memberName}>{member.name}</Text>
-                      <Text style={styles.meta}>{member.intention.bio}</Text>
+                      <Body style={styles.memberName}>{member.name}</Body>
+                      <Body muted style={styles.meta}>{member.intention.bio}</Body>
                     </View>
                   </View>
                 ))}
               </Card>
               {why.length > 0 && (
-                <Card>
-                  <Text style={styles.blockTitle}>Passt zu dir</Text>
+                <Card tone="soft">
+                  <Title style={styles.blockTitle}>Passt zu dir</Title>
                   {why.map((reason) => (
-                    <Text key={reason} style={styles.body}>
+                    <Body key={reason} muted>
                       {reason}
-                    </Text>
+                    </Body>
                   ))}
                 </Card>
               )}
@@ -329,17 +328,14 @@ export default function CircleDetailScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: space.lg, gap: 16 },
-  kicker: { ...type.caption, color: colors.muted, fontWeight: "600" },
-  ritual: { ...type.callout, fontWeight: "400", color: colors.muted, marginTop: 4, marginBottom: 10 },
-  seats: { ...type.callout, color: colors.ink, marginTop: 8 },
-  season: { ...type.caption, color: colors.muted, marginTop: 6 },
-  meta: { ...type.callout, fontWeight: "400", color: colors.muted, marginTop: 6 },
-  blockTitle: { ...type.subtitle, fontWeight: "600", color: colors.ink, marginBottom: 6 },
-  body: { ...type.body, color: colors.muted },
+  content: { padding: space.lg, gap: space.md },
+  ritual: { marginTop: 4, marginBottom: 10 },
+  seats: { marginTop: space.xs, fontWeight: "600" },
+  season: { marginTop: 6, fontSize: 13, lineHeight: 17 },
+  meta: { marginTop: 6 },
+  blockTitle: { marginBottom: 6 },
   member: { flexDirection: "row", gap: 10, alignItems: "center", marginTop: 10 },
-  memberName: { fontWeight: "600", color: colors.ink },
-  empty: { color: colors.muted, textAlign: "center", padding: 24 },
+  memberName: { fontWeight: "600" },
   backHit: {
     flexDirection: "row",
     alignItems: "center",
@@ -347,5 +343,5 @@ const styles = StyleSheet.create({
     minHeight: 44,
     paddingRight: 10,
   },
-  backLabel: { color: colors.clayDark, fontSize: 17, fontWeight: "600" },
+  backLabel: { color: colors.coralDark, fontSize: 17, fontWeight: "600" },
 });

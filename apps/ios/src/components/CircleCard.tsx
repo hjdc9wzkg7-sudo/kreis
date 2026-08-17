@@ -1,12 +1,12 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { formatIcons, formatLabels, resolveFormat } from "../domain/copy";
 import { getUserById } from "../domain/data";
 import { openSeatsLabel } from "../domain/matching";
 import type { Circle } from "../domain/types";
-import { colors, space, type, typeScale } from "../theme/tokens";
+import { colors, space } from "../theme/tokens";
 import { PressableScale } from "./motion";
-import { AvatarGroup, Button, Card } from "./ui";
+import { AvatarGroup, Body, Button, Card, Kicker, Title } from "./ui";
 
 export function SeasonBar({ week, total }: { week: number; total: number }) {
   const pct = Math.min(100, (week / total) * 100);
@@ -28,6 +28,7 @@ export function CircleCard({
   onJoin,
   onSkip,
   currentUserId,
+  delay = 0,
 }: {
   circle: Circle;
   reasons?: string[];
@@ -35,6 +36,7 @@ export function CircleCard({
   onJoin?: () => void;
   onSkip?: () => void;
   currentUserId?: string;
+  delay?: number;
 }) {
   const members = circle.memberIds
     .map((id) => getUserById(id).initials)
@@ -45,44 +47,39 @@ export function CircleCard({
 
   const info = (
     <>
-      <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.kicker}>
+      <Kicker>
         {formatIcons[resolveFormat(circle.format)]} {formatLabels[resolveFormat(circle.format)]} · {circle.neighborhood}
-      </Text>
-      <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.name}>
-        {circle.name}
-      </Text>
-      <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.body} numberOfLines={2}>
+      </Kicker>
+      <Title style={styles.name}>{circle.name}</Title>
+      <Body muted style={styles.body} numberOfLines={2}>
         {circle.description}
-      </Text>
+      </Body>
       <View style={styles.meta}>
         <AvatarGroup initials={members} />
-        <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.metaText}>
-          {openSeatsLabel(circle)}
-        </Text>
+        <Body style={styles.metaText}>{openSeatsLabel(circle)}</Body>
       </View>
       {leading ? (
-        <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.hostMark}>
-          Du führst diesen Kreis
-        </Text>
+        <Body style={styles.hostMark}>Du führst diesen Kreis</Body>
       ) : null}
-      <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.season}>
+      <Body muted style={styles.season}>
         Woche {circle.season.weekNumber} von {circle.season.totalWeeks}
         {Math.max(0, circle.season.totalWeeks - circle.season.weekNumber) > 0
           ? ` · noch ${circle.season.totalWeeks - circle.season.weekNumber}`
           : " · letzte Woche"}
-      </Text>
-      {why ? (
-        <Text allowFontScaling maxFontSizeMultiplier={typeScale.body} style={styles.why}>
-          {why}
-        </Text>
-      ) : null}
+      </Body>
+      {why ? <Body style={styles.why}>{why}</Body> : null}
     </>
   );
 
   return (
-    <Card>
+    <Card delay={delay}>
       {onPress ? (
-        <PressableScale onPress={onPress} haptic="light" accessibilityLabel={circle.name}>
+        <PressableScale
+          onPress={onPress}
+          haptic="light"
+          pressedScale={0.985}
+          accessibilityLabel={circle.name}
+        >
           {info}
         </PressableScale>
       ) : (
@@ -90,16 +87,8 @@ export function CircleCard({
       )}
       {hasActions && (
         <View style={styles.actions}>
-          {onJoin && (
-            <View style={{ flex: 1 }}>
-              <Button label="Dabei sein" onPress={onJoin} />
-            </View>
-          )}
-          {onSkip && (
-            <View style={{ flex: 1 }}>
-              <Button label="Andere Einladung" variant="secondary" onPress={onSkip} />
-            </View>
-          )}
+          {onJoin ? <Button label="Dabei sein" haptic="success" onPress={onJoin} /> : null}
+          {onSkip ? <Button label="Andere Einladung" variant="ghost" onPress={onSkip} /> : null}
         </View>
       )}
     </Card>
@@ -107,21 +96,20 @@ export function CircleCard({
 }
 
 const styles = StyleSheet.create({
-  kicker: { ...type.caption, color: colors.muted, fontWeight: "600" },
-  name: { marginTop: 6, ...type.hero, color: colors.ink },
-  body: { marginTop: space.sm, color: colors.muted, ...type.callout, fontWeight: "400" },
+  name: { marginTop: 6 },
+  body: { marginTop: space.sm },
   meta: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: space.md },
-  metaText: { color: colors.ink, ...type.caption, flex: 1, fontWeight: "500" },
-  hostMark: { ...type.caption, color: colors.sage, fontWeight: "700", marginTop: 10 },
-  season: { ...type.caption, color: colors.muted, marginTop: 6 },
-  why: { ...type.caption, color: colors.coral, marginTop: 6 },
+  metaText: { flex: 1, fontSize: 13, lineHeight: 17, fontWeight: "500" },
+  hostMark: { color: colors.sage, fontWeight: "600", marginTop: 10, fontSize: 13, lineHeight: 17 },
+  season: { marginTop: 6, fontSize: 13, lineHeight: 17 },
+  why: { color: colors.coral, marginTop: 6, fontSize: 13, lineHeight: 17, fontWeight: "500" },
   track: {
     height: 6,
     backgroundColor: "rgba(36,31,28,0.08)",
     borderRadius: 99,
     overflow: "hidden",
-    marginTop: 8,
+    marginTop: space.xs,
   },
   fill: { height: "100%", backgroundColor: colors.coral },
-  actions: { flexDirection: "row", gap: 8, marginTop: space.md },
+  actions: { gap: space.xs, marginTop: space.md },
 });

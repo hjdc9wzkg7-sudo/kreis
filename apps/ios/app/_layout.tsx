@@ -1,11 +1,11 @@
 import "react-native-gesture-handler";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { ActivityIndicator, View } from "react-native";
 
 import { Atmosphere } from "@/src/components/glass";
 import { FlashBanner } from "@/src/components/FlashBanner";
-import { Body } from "@/src/components/ui";
+import { LoadingState } from "@/src/components/ui";
+import { AuthProvider, useAuth } from "@/src/lib/useAuth";
 import { AppProvider, useApp } from "@/src/state/store";
 import { colors } from "@/src/theme/tokens";
 
@@ -17,14 +17,12 @@ export const unstable_settings = {
 
 function Gate() {
   const { hydrated, state } = useApp();
+  const { ready } = useAuth();
 
-  if (!hydrated) {
+  if (!hydrated || !ready) {
     return (
       <Atmosphere>
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", gap: 14, padding: 24 }}>
-          <ActivityIndicator color={colors.coral} />
-          <Body muted>Einen Moment — wir holen deinen Stand.</Body>
-        </View>
+        <LoadingState />
       </Atmosphere>
     );
   }
@@ -36,7 +34,7 @@ function Gate() {
       <Stack
         screenOptions={{
           headerShadowVisible: false,
-          headerTintColor: colors.clayDark,
+          headerTintColor: colors.coralDark,
           headerBackTitle: "Zurück",
           headerBackButtonDisplayMode: "generic",
           headerStyle: { backgroundColor: colors.cream },
@@ -46,6 +44,7 @@ function Gate() {
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
@@ -74,7 +73,9 @@ function Gate() {
 export default function RootLayout() {
   return (
     <AppProvider>
-      <Gate />
+      <AuthProvider>
+        <Gate />
+      </AuthProvider>
     </AppProvider>
   );
 }

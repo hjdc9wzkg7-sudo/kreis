@@ -1,49 +1,48 @@
 ﻿Du arbeitest an der Expo Router / React Native App im Ordner `apps/ios`.
 
-Ziel: Die ersten sinnvollen Produkt-Features umsetzen, die den Kern der App (kleine, intentionale Kreise, Saisons, Rituale) spürbar stärken. Keine kosmetischen Spielereien. Bestehende Navigation, Design-System und State-Architektur beibehalten und erweitern.
+Ziel: Komplettes Design-Upgrade auf Apple-Design-Award-Niveau.
+Kern: liquid glass behalten, deutlich fluider, minimalistisch, aber mit klarem Wiedererkennungswert. Einheitlich, intuitiv, lebendig, nicht verwirrend.
 
-### Kontext der App
-- Kleine Kreise (4–8 Personen)
-- Wiederkehrende Rituale / Saisons (2–4 Wochen)
-- Fokus auf Einladung, RSVP und gemeinsame Termine
-- Privacy-first, keine offenen DMs
+### Design-Richtung
+- Visuelle Identität: warmer, ruhiger Ritual-Raum (kleine Kreise, Nähe, Intention)
+- Material: Liquid Glass als Hauptmaterial – gezielt einsetzen, nicht flächendeckend gleich
+- Farbe: warmes Cream als Basis, ein klarer lebendiger Primary-Akzent (Coral/Peach-Linie), Sage nur sparsam
+- Motion: durchgängiges Spring-System, flüssige Übergänge, spürbare aber elegante Micro-Interactions
+- Typo & Spacing: klarer Rhythmus, mehr Luft, weniger Varianten
+- UX: eine dominante Aktion pro Screen, klare Hierarchie, keine visuellen Konflikte
 
----
+### Phase 1 – Design-System schärfen
+- `src/theme/tokens.ts` überarbeiten (Farben, Spacing, Radius, Motion, Type)
+- Atmosphere in `glass.tsx` verfeinern (Gradient, Orbs, Intensität)
+- PressableScale / Enter in `motion.tsx` fluider und einheitlicher machen
+- Button-, Card-, EmptyState- und Text-Komponenten in `ui.tsx` vereinheitlichen
 
-### Phase 1 – Host-Tools stärken
+### Phase 2 – Komponenten-Konsistenz
+- CircleCard, MeetupCard, FormatGuideCard und weitere Cards auf ein gemeinsames System bringen
+- Primary / Secondary / Ghost klar trennen
+- Empty States auf allen wichtigen Screens (Entdecken, Kreise, Profil, Heute) aufwerten – warm, menschlich, nicht generisch
 
-- Wenn der aktuelle User Host eines Kreises ist, klar sichtbare Aktionen anbieten:
-  - Nächsten Termin vorschlagen / festlegen (ScheduleNextCard ausbauen oder verbessern)
-  - Übersicht, wer zugesagt hat
-- Host-Status muss überall klar erkennbar sein.
+### Phase 3 – Screens angleichen
+- Heute, Entdecken, Kreise, Profil, Kreis-Detail
+- Einheitliche Abstände, Header-Wirkung, visuelle Hierarchie
+- Dominante CTAs (Dabei sein, Zusagen, Verlassen) müssen sofort klar sein
+- Tab-Bar und Header ruhig und konsistent
 
-### Phase 2 – RSVP & Treffen-Flow
+### Phase 4 – Fluidität & Delight
+- Bessere Screen-Übergänge wo sinnvoll
+- Spürbares Feedback bei Join, RSVP, Leave (Haptic + kurzes visuelles Feedback)
+- Keine übertriebenen Animationen – hochwertig und zurückhaltend
 
-- Zusage / Absage zu einem Treffen muss klar, schnell und mit Feedback funktionieren.
-- Nach dem RSVP soll der User sofort sehen, was der aktuelle Stand ist (wer kommt).
-- Edge-Cases abfangen (bereits zugesagt, Treffen vorbei, etc.).
-
-### Phase 3 – Saison-Fortschritt spürbar machen
-
-- SeasonBar und Saison-Informationen sollen dem User zeigen, wo die Gruppe in der aktuellen Saison steht.
-- Kurzer, verständlicher Hinweis, was als Nächstes ansteht.
-
-### Phase 4 – Profil & Intention
-
-- User soll seine Intention / Präferenzen (Formate, Pace etc.) im Profil nachträglich anpassen können.
-- Änderungen sollen sich auf zukünftige Vorschläge auswirken.
-
-### Phase 5 – Kleine Qualitäts-Features
-
-- Flash-Banner / Erfolgsmeldungen bei wichtigen Aktionen (Beitritt, RSVP, Termin gesetzt) konsistent nutzen.
-- Sicherstellen, dass leere und Fehlerzustände weiterhin sauber sind.
-
----
+### Phase 5 – UX-Klarheit
+- Verwirrende oder doppelte visuelle Muster entfernen
+- Lade-, Leer- und Fehlerzustände konsistent
+- Bestehende Navigation und Auth nicht kaputt machen
 
 ### Regeln
-- Bestehende Domain-Logik (`src/domain`), Store und Design-System maximal wiederverwenden.
-- Keine neuen parallelen Navigationswege.
-- Nach jeder Phase kurze Statusmeldung + relevante Diffs.
-- Am Ende Auflistung der neuen/geänderten Features und was der User davon spürt.
+- Liquid Glass beibehalten und verbessern
+- Keine völlig neue App-Architektur
+- Bestehende Tokens/Komponenten maximal schärfen statt parallel neue Systeme bauen
+- Nach jeder Phase Status + relevante Diffs
+- Am Ende: was sich für den Nutzer spürbar verändert hat
 
-Arbeite präzise und sequenziell. Priorisiere echten Nutzen vor Umfang.
+Arbeite präzise und sequenziell. Ziel ist Craft + Identität, nicht mehr Dekoration.

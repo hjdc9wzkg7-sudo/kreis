@@ -2,7 +2,7 @@ import { router, type Href } from "expo-router";
 import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 
 import { Atmosphere } from "@/src/components/glass";
-import { Button, Card, Chip, SectionLabel } from "@/src/components/ui";
+import { Button, Card, Chip, SectionLabel, fieldStyle } from "@/src/components/ui";
 import { FormatGuideCard } from "@/src/components/FormatGuideCard";
 import {
   availabilityLabels,
@@ -15,8 +15,9 @@ import {
 import { intentionPace } from "@/src/domain/matching";
 import type { Availability, FormatType, SocialPace } from "@/src/domain/types";
 import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
+import { signOut } from "@/src/lib/auth";
 import { useApp, useResetDemo } from "@/src/state/store";
-import { colors, radius, space, type } from "@/src/theme/tokens";
+import { colors, space, type } from "@/src/theme/tokens";
 
 export default function SettingsScreen() {
   const { state, dispatch } = useApp();
@@ -93,7 +94,6 @@ export default function SettingsScreen() {
             <Chip
               key={format}
               label={formatLabels[format]}
-              tone="sage"
               selected={intention.formats.includes(format)}
               onPress={() => toggleFormat(format)}
             />
@@ -157,6 +157,22 @@ export default function SettingsScreen() {
           onPress={() => dispatch({ type: "RESET_PERSONALIZATION" })}
         />
         <Button
+          label="Abmelden"
+          variant="secondary"
+          onPress={() =>
+            Alert.alert("Abmelden?", "Du kannst dich jederzeit wieder mit deiner E-Mail anmelden.", [
+              { text: "Abbrechen", style: "cancel" },
+              {
+                text: "Abmelden",
+                style: "destructive",
+                onPress: () => {
+                  void signOut().then(() => router.replace("/login"));
+                },
+              },
+            ])
+          }
+        />
+        <Button
           label="Demo zurücksetzen"
           variant="ghost"
           onPress={() =>
@@ -176,26 +192,18 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: space.lg, gap: 10 },
+  content: { padding: space.lg, gap: space.sm },
   lead: { ...type.body, color: colors.muted, marginBottom: 8 },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 6 },
   input: {
-    backgroundColor: "rgba(255,255,255,0.55)",
-    borderRadius: radius.md,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    color: colors.ink,
-    fontSize: type.subtitle.fontSize,
-    marginBottom: 8,
+    ...fieldStyle,
+    marginBottom: space.xs,
   },
   area: {
+    ...fieldStyle,
     minHeight: 90,
-    backgroundColor: "rgba(255,255,255,0.5)",
-    borderRadius: radius.md,
-    padding: 14,
-    color: colors.ink,
     textAlignVertical: "top",
-    marginBottom: 8,
+    marginBottom: space.xs,
   },
   switchRow: { flexDirection: "row", gap: 12, alignItems: "center" },
   switchTitle: { ...type.callout, color: colors.ink, marginBottom: 4 },

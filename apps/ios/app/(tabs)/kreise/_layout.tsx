@@ -7,7 +7,7 @@ export default function CirclesStack() {
     <Stack
       screenOptions={{
         headerShadowVisible: false,
-        headerTintColor: colors.clayDark,
+        headerTintColor: colors.coralDark,
         headerBackTitle: "Zurück",
         headerBackButtonDisplayMode: "generic",
         headerTitleStyle: { fontWeight: "600", color: colors.ink },

@@ -7,7 +7,7 @@ export default function ProfileStack() {
     <Stack
       screenOptions={{
         headerShadowVisible: false,
-        headerTintColor: colors.clayDark,
+        headerTintColor: colors.coralDark,
         headerBackTitle: "Zurück",
         headerBackButtonDisplayMode: "generic",
         headerBackVisible: true,

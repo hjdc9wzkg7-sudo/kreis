@@ -1,16 +1,16 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { AfterEveningCard } from "@/src/components/AfterEveningCard";
 import { CircleCard } from "@/src/components/CircleCard";
-import { Atmosphere, GlassSurface } from "@/src/components/glass";
+import { GlassSurface } from "@/src/components/glass";
 import { MeetupCard } from "@/src/components/MeetupCard";
 import { PressableScale } from "@/src/components/motion";
 import { ScheduleNextCard } from "@/src/components/ScheduleNextCard";
+import { TabScreen } from "@/src/components/Screen";
 import { Body, Button, EmptyState, ScreenIntro } from "@/src/components/ui";
 import { paceLabels } from "@/src/domain/copy";
-import { useScreenPadding } from "@/src/components/useTabScrollPadding";
 import { daysUntil, getJoinedCircles, greeting, homePhase, intentionPace } from "@/src/domain/matching";
 import { openCircle } from "@/src/navigation";
 import { useApp } from "@/src/state/store";
@@ -28,7 +28,6 @@ export default function TodayScreen() {
     openCircle(id, "heute");
   }
 
-  const screenPad = useScreenPadding();
   const intro =
     phase.kind === "upcoming"
       ? `${phase.circle.name} · ${daysUntil(phase.meetup)}`
@@ -43,13 +42,7 @@ export default function TodayScreen() {
               : "Heute nichts Offenes.";
 
   return (
-    <Atmosphere>
-      <View collapsable={false} style={styles.safe}>
-        <ScrollView
-          contentContainerStyle={[styles.content, screenPad]}
-          contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator={false}
-        >
+    <TabScreen>
           <ScreenIntro
             kicker={`Demo · ${paceLabels[pace]} · ${state.currentUser.intention.neighborhood}`}
             title={greeting(state.currentUser.name)}
@@ -119,7 +112,7 @@ export default function TodayScreen() {
                   onRate={(wouldRepeat) =>
                     dispatch({
                       type: "RATE_MEETUP",
-                      rating: { meetupId: phase.meetup.id, wouldRepeat, feltSafe: true },
+                      rating: { meetupId: phase.meetup.id, wouldRepeat },
                     })
                   }
                 />
@@ -191,15 +184,11 @@ export default function TodayScreen() {
               }
             />
           )}
-        </ScrollView>
-      </View>
-    </Atmosphere>
+    </TabScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
-  content: {},
   hero: { gap: 8 },
   hintStrip: { borderRadius: radius.md },
   hintText: { ...type.caption },

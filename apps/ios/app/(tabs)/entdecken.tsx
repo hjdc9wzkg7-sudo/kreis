@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { CircleCard } from "@/src/components/CircleCard";
 import { FormatGuideCard } from "@/src/components/FormatGuideCard";
-import { Atmosphere } from "@/src/components/glass";
+import { TabScreen } from "@/src/components/Screen";
 import { Button, EmptyState, ScreenIntro } from "@/src/components/ui";
-import { useScreenPadding } from "@/src/components/useTabScrollPadding";
 import { getDailySuggestions } from "@/src/domain/matching";
 import { openCircle } from "@/src/navigation";
 import { useApp } from "@/src/state/store";
@@ -15,7 +14,6 @@ export default function DiscoverScreen() {
   const suggestions = getDailySuggestions(state);
   const current = suggestions[0];
   const [showGuide, setShowGuide] = useState(false);
-  const screenPad = useScreenPadding();
 
   useEffect(() => {
     setShowGuide(false);
@@ -27,55 +25,45 @@ export default function DiscoverScreen() {
   }
 
   return (
-    <Atmosphere>
-      <View collapsable={false} style={styles.safe}>
-        <ScrollView
-          contentContainerStyle={[styles.content, screenPad]}
-          contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator={false}
-        >
-          <ScreenIntro
-            display="Entdecken"
-            body={
-              suggestions.length === 0
-                ? "Heute keine offene Einladung mehr."
-                : suggestions.length === 1
-                  ? "Eine offene Einladung."
-                  : `${suggestions.length} offene Einladungen — eine nach der anderen.`
-            }
-          />
+    <TabScreen>
+      <ScreenIntro
+        display="Entdecken"
+        body={
+          suggestions.length === 0
+            ? "Heute keine offene Einladung mehr."
+            : suggestions.length === 1
+              ? "Eine offene Einladung."
+              : `${suggestions.length} offene Einladungen — eine nach der anderen.`
+        }
+      />
 
-          {!current ? (
-            <EmptyState
-              kicker="Pause verdient"
-              title="Für heute genug"
-              body="Ruhig ausatmen. Morgen wartet wieder eine Einladung — oder du sagst unter dem Zahnrad, was sich richtig anfühlt."
-            />
-          ) : (
-            <View style={styles.stack}>
-                <CircleCard
-                  circle={current.circle}
-                  reasons={current.reasons}
-                  onPress={() => openCircle(current.circle.id, "entdecken")}
-                  onJoin={() => join(current.circle.id)}
-                  onSkip={() => dispatch({ type: "DISMISS_CIRCLE", circleId: current.circle.id })}
-                />
-                <Button
-                  label={showGuide ? "Steckbrief schließen" : "Was erwartet mich dort?"}
-                  variant="ghost"
-                  onPress={() => setShowGuide((value) => !value)}
-                />
-                {showGuide && <FormatGuideCard format={current.circle.format} />}
-              </View>
-          )}
-        </ScrollView>
-      </View>
-    </Atmosphere>
+      {!current ? (
+        <EmptyState
+          kicker="Pause verdient"
+          title="Für heute genug"
+          body="Ruhig ausatmen. Morgen wartet wieder eine Einladung — oder du sagst unter dem Zahnrad, was sich richtig anfühlt."
+        />
+      ) : (
+        <View style={styles.stack}>
+          <CircleCard
+            circle={current.circle}
+            reasons={current.reasons}
+            onPress={() => openCircle(current.circle.id, "entdecken")}
+            onJoin={() => join(current.circle.id)}
+            onSkip={() => dispatch({ type: "DISMISS_CIRCLE", circleId: current.circle.id })}
+          />
+          <Button
+            label={showGuide ? "Steckbrief schließen" : "Was erwartet mich dort?"}
+            variant="ghost"
+            onPress={() => setShowGuide((value) => !value)}
+          />
+          {showGuide && <FormatGuideCard format={current.circle.format} />}
+        </View>
+      )}
+    </TabScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
-  content: {},
   stack: { gap: 8 },
 });

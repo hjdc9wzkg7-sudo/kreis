@@ -1,14 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, type Href } from "expo-router";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { CircleCard } from "@/src/components/CircleCard";
-import { Atmosphere, GlassSurface } from "@/src/components/glass";
+import { GlassSurface } from "@/src/components/glass";
 import { PressableScale } from "@/src/components/motion";
+import { TabScreen } from "@/src/components/Screen";
 import { Avatar, Body, Button, Card, EmptyState, Kicker, ScreenIntro, SectionLabel, Title } from "@/src/components/ui";
 import { formatLabels, paceLabels, resolveFormat } from "@/src/domain/copy";
 import { hostedCircleNeedingSchedule, hostedCircles, intentionPace } from "@/src/domain/matching";
-import { useScreenPadding } from "@/src/components/useTabScrollPadding";
 import { getReputation } from "@/src/domain/trust";
 import { openCircle } from "@/src/navigation";
 import { useApp } from "@/src/state/store";
@@ -18,19 +18,12 @@ export default function ProfileScreen() {
   const { state, dispatch } = useApp();
   const reputation = getReputation(state);
   const { intention } = state.currentUser;
-  const screenPad = useScreenPadding();
   const empty = reputation.guestCircles.length === 0 && reputation.hostedCircles.length === 0;
 
   return (
-    <Atmosphere>
-      <View collapsable={false} style={styles.safe}>
-        <ScrollView
-          contentContainerStyle={[styles.content, screenPad]}
-          contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator={false}
-        >
+    <TabScreen>
           <View style={styles.top}>
-            <View style={{ flex: 1 }}>
+            <View style={styles.intro}>
               <ScreenIntro kicker="Profil · Demo" display={state.currentUser.name} />
             </View>
             <PressableScale
@@ -46,9 +39,10 @@ export default function ProfileScreen() {
           <Card tone="strong">
             <View style={styles.identity}>
               <Avatar initials={state.currentUser.initials} size={64} />
-              <View style={{ flex: 1 }}>
+              <View style={styles.identityCopy}>
                 <Title style={styles.place}>{intention.neighborhood}</Title>
-                <Body muted style={styles.bio}>{intention.bio}</Body>
+                <Body muted style={styles.bio}>{paceLabels[intentionPace(state.currentUser)]}</Body>
+                {intention.bio ? <Body muted style={styles.bio}>{intention.bio}</Body> : null}
               </View>
             </View>
             <View style={styles.tags}>
@@ -58,14 +52,6 @@ export default function ProfileScreen() {
                 </View>
               ))}
             </View>
-          </Card>
-
-          <Card tone="soft">
-            <SectionLabel>Was zu dir passt</SectionLabel>
-            <Title style={styles.place}>{paceLabels[intentionPace(state.currentUser)]}</Title>
-            <Body muted style={styles.bio}>
-              {intention.neighborhood} · {intention.formats.map((item) => formatLabels[resolveFormat(item)]).join(", ")}
-            </Body>
             <Button
               label="Anpassen"
               variant="ghost"
@@ -132,7 +118,7 @@ export default function ProfileScreen() {
           )}
 
           {reputation.guestCircles.length > 0 && (
-            <View style={{ gap: space.sm }}>
+            <View style={styles.list}>
               <SectionLabel>Als Teilnehmer:in</SectionLabel>
               {reputation.guestCircles.map((circle, index) => (
                 <CircleCard
@@ -147,7 +133,7 @@ export default function ProfileScreen() {
           )}
 
           {reputation.hostedCircles.length > 0 && (
-            <View style={{ gap: space.sm }}>
+            <View style={styles.list}>
               <SectionLabel>Als Gastgeber:in</SectionLabel>
               {reputation.hostedCircles.map((circle, index) => (
                 <CircleCard
@@ -160,16 +146,14 @@ export default function ProfileScreen() {
               ))}
             </View>
           )}
-        </ScrollView>
-      </View>
-    </Atmosphere>
+    </TabScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
-  content: {},
   top: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", gap: space.sm },
+  intro: { flex: 1 },
+  list: { gap: space.sm },
   gear: {
     width: 44,
     height: 44,
@@ -178,6 +162,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   identity: { flexDirection: "row", gap: 14, alignItems: "flex-start" },
+  identityCopy: { flex: 1 },
   place: { fontSize: 17, lineHeight: 22 },
   bio: { marginTop: 4 },
   tags: { flexDirection: "row", flexWrap: "wrap", gap: space.xs, marginTop: space.sm },

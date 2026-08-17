@@ -3,7 +3,8 @@ import { StyleSheet, TextInput, View } from "react-native";
 
 import { getUserById } from "../domain/data";
 import type { Moment } from "../domain/types";
-import { colors, space } from "../theme/tokens";
+import { useApp } from "../state/store";
+import { colors, space, type } from "../theme/tokens";
 import { ActionRow, Avatar, Body, Button, Card, EmptyState, Title, fieldStyle } from "./ui";
 
 export function MomentFeed({
@@ -15,6 +16,7 @@ export function MomentFeed({
   currentUserId: string;
   onAdd: (content: string) => void;
 }) {
+  const { state } = useApp();
   const [draft, setDraft] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -26,7 +28,7 @@ export function MomentFeed({
   }
 
   return (
-    <View style={{ gap: space.sm }}>
+    <View style={styles.stack}>
       {open ? (
         <Card>
           <Title style={styles.prompt}>Was möchtest du der Runde hinterlassen?</Title>
@@ -38,7 +40,7 @@ export function MomentFeed({
             multiline
             style={styles.input}
           />
-          <View style={{ marginTop: 10 }}>
+          <View style={styles.composerActions}>
             <ActionRow
               primary={
                 <Button label="Teilen" haptic="success" onPress={submit} disabled={!draft.trim()} />
@@ -52,7 +54,7 @@ export function MomentFeed({
       )}
 
       {moments.map((moment) => {
-        const author = getUserById(moment.authorId);
+        const author = getUserById(moment.authorId, state.currentUser);
         const when = new Date(moment.createdAt).toLocaleString("de-DE", {
           day: "numeric",
           month: "short",
@@ -63,7 +65,7 @@ export function MomentFeed({
           <Card key={moment.id} tone="soft">
             <View style={styles.head}>
               <Avatar initials={author?.initials ?? "?"} size={32} />
-              <View style={{ flex: 1 }}>
+              <View style={styles.authorCol}>
                 <Body style={styles.author}>
                   {author?.id === currentUserId ? "Du" : author?.name ?? "Mitglied"}
                 </Body>
@@ -91,6 +93,9 @@ export function MomentFeed({
 }
 
 const styles = StyleSheet.create({
+  stack: { gap: space.sm },
+  composerActions: { marginTop: 10 },
+  authorCol: { flex: 1 },
   prompt: { marginBottom: space.xs },
   input: {
     ...fieldStyle,
@@ -99,6 +104,6 @@ const styles = StyleSheet.create({
   },
   head: { flexDirection: "row", gap: 10, alignItems: "center" },
   author: { fontWeight: "600" },
-  when: { fontSize: 13, lineHeight: 17 },
+  when: { ...type.caption },
   content: { marginTop: 10 },
 });

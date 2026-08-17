@@ -43,6 +43,13 @@ export function ScheduleNextCard({
   const [time, setTime] = useState(meetup?.time ?? "17:00");
   const [location, setLocation] = useState(meetup?.location ?? "");
   const ready = title.trim().length > 1 && location.trim().length > 3 && Boolean(date);
+  const save = () =>
+    onSave({
+      title: title.trim(),
+      date,
+      time,
+      location: location.trim(),
+    });
 
   return (
     <Card>
@@ -92,35 +99,11 @@ export function ScheduleNextCard({
 
       {onCancel ? (
         <ActionRow
-          primary={
-            <Button
-              label="Speichern"
-              disabled={!ready}
-              onPress={() =>
-                onSave({
-                  title: title.trim(),
-                  date,
-                  time,
-                  location: location.trim(),
-                })
-              }
-            />
-          }
+          primary={<Button label="Speichern" disabled={!ready} onPress={save} />}
           secondary={<Button label="Abbrechen" variant="ghost" onPress={onCancel} />}
         />
       ) : (
-        <Button
-          label="Speichern"
-          disabled={!ready}
-          onPress={() =>
-            onSave({
-              title: title.trim(),
-              date,
-              time,
-              location: location.trim(),
-            })
-          }
-        />
+        <Button label="Speichern" disabled={!ready} onPress={save} />
       )}
     </Card>
   );

@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { CURRENT_USER_ID, resolveFormat } from "../domain/copy";
+import { CURRENT_USER_ID, LOCATION_HINT, resolveFormat } from "../domain/copy";
 import { createInitialState, initialsFromName, todayKey } from "../domain/data";
 import { upcomingMeetupForCircle } from "../domain/matching";
 import type { AppAction, AppState } from "../domain/types";
@@ -36,15 +36,28 @@ function normalizeState(state: AppState): AppState {
       ...state.currentUser,
       intention: { ...raw, pace, formats },
     },
-    circles: state.circles.map((circle) => ({
+    circles: (state.circles ?? []).map((circle) => ({
       ...circle,
       format: resolveFormat(circle.format),
       season: { ...circle.season, format: resolveFormat(circle.season.format) },
     })),
-    meetups: state.meetups.map((meetup) => ({
+    meetups: (state.meetups ?? []).map((meetup) => ({
       ...meetup,
+      locationHint: meetup.locationHint || LOCATION_HINT,
       attendance: meetup.attendance ?? {},
+      rsvps: meetup.rsvps ?? {},
     })),
+    moments: state.moments ?? [],
+    joinedCircleIds: state.joinedCircleIds ?? [],
+    dismissedCircleIds: state.dismissedCircleIds ?? [],
+    reports: state.reports ?? [],
+    ratings: (state.ratings ?? []).map((item) => ({
+      meetupId: item.meetupId,
+      wouldRepeat: item.wouldRepeat,
+    })),
+    settings: {
+      personalizationEnabled: state.settings?.personalizationEnabled ?? true,
+    },
     flash: state.flash ?? null,
     sawHomeHint: state.sawHomeHint ?? true,
   };
@@ -258,7 +271,7 @@ function reducer(state: AppState, action: AppAction): AppState {
             date: action.date,
             time: action.time,
             location: action.location,
-            locationHint: "Genauer Treffpunkt wird erst nach deiner Zusage sichtbar.",
+            locationHint: LOCATION_HINT,
             minDurationMinutes: 90,
             attendance: {},
             rsvps: { [state.currentUser.id]: "yes" },
@@ -268,7 +281,6 @@ function reducer(state: AppState, action: AppAction): AppState {
           item.id === circle.id
             ? {
                 ...item,
-                nextMeetupId: id,
                 season: { ...item.season, weekNumber: nextWeek },
               }
             : item
@@ -310,7 +322,6 @@ function reducer(state: AppState, action: AppAction): AppState {
         maxMembers: 6,
         hostName: state.currentUser.name,
         hostId: state.currentUser.id,
-        nextMeetupId: "",
         season: {
           id: `season-${id}`,
           circleId: id,
@@ -332,8 +343,6 @@ function reducer(state: AppState, action: AppAction): AppState {
           : [...state.joinedCircleIds, id],
       };
     }
-    case "SET_DIGEST":
-      return { ...state, settings: { ...state.settings, digest: action.digest } };
     case "SET_PERSONALIZATION":
       return {
         ...state,

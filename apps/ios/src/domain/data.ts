@@ -1,4 +1,4 @@
-import { CURRENT_USER_ID } from "./copy";
+import { CURRENT_USER_ID, LOCATION_HINT } from "./copy";
 import type {
   AppState,
   Circle,
@@ -8,7 +8,7 @@ import type {
   User,
 } from "./types";
 
-export const currentUser: User = {
+const currentUser: User = {
   id: CURRENT_USER_ID,
   name: "Katharina",
   initials: "KP",
@@ -22,7 +22,7 @@ export const currentUser: User = {
   },
 };
 
-export const users: User[] = [
+const users: User[] = [
   currentUser,
   {
     id: "user-1",
@@ -91,7 +91,7 @@ export const users: User[] = [
   },
 ];
 
-export const circles: Circle[] = [
+const circles: Circle[] = [
   {
     id: "circle-1",
     name: "Sonntagsküche",
@@ -103,7 +103,6 @@ export const circles: Circle[] = [
     maxMembers: 6,
     hostName: "Lea M.",
     hostId: "user-1",
-    nextMeetupId: "meetup-1",
     season: {
       id: "season-1",
       circleId: "circle-1",
@@ -127,7 +126,6 @@ export const circles: Circle[] = [
     maxMembers: 8,
     hostName: "Jonas K.",
     hostId: "user-2",
-    nextMeetupId: "meetup-2",
     season: {
       id: "season-2",
       circleId: "circle-2",
@@ -151,7 +149,6 @@ export const circles: Circle[] = [
     maxMembers: 6,
     hostName: "Sara T.",
     hostId: "user-3",
-    nextMeetupId: "meetup-3",
     season: {
       id: "season-3",
       circleId: "circle-3",
@@ -166,7 +163,7 @@ export const circles: Circle[] = [
   },
 ];
 
-export const meetups: Meetup[] = [
+const meetups: Meetup[] = [
   {
     id: "meetup-1",
     circleId: "circle-1",
@@ -174,7 +171,7 @@ export const meetups: Meetup[] = [
     date: "2026-08-17",
     time: "17:00",
     location: "Gemeinschaftsküche, Kastanienallee 12, Hinterhaus",
-    locationHint: "Genauer Treffpunkt wird erst nach deiner Zusage sichtbar.",
+    locationHint: LOCATION_HINT,
     minDurationMinutes: 90,
     attendance: {},
     rsvps: {
@@ -190,7 +187,7 @@ export const meetups: Meetup[] = [
     date: "2026-08-14",
     time: "10:00",
     location: "Mauerpark Nord, Eingang Gleimstraße",
-    locationHint: "Genauer Treffpunkt wird erst nach deiner Zusage sichtbar.",
+    locationHint: LOCATION_HINT,
     minDurationMinutes: 90,
     attendance: {
       "user-2": "here",
@@ -207,7 +204,7 @@ export const meetups: Meetup[] = [
     date: "2026-08-23",
     time: "08:30",
     location: "Volkspark Friedrichshain, Haupteingang",
-    locationHint: "Genauer Treffpunkt wird erst nach deiner Zusage sichtbar.",
+    locationHint: LOCATION_HINT,
     minDurationMinutes: 45,
     attendance: {},
     rsvps: {
@@ -216,7 +213,7 @@ export const meetups: Meetup[] = [
   },
 ];
 
-export const moments: Moment[] = [
+const moments: Moment[] = [
   {
     id: "moment-1",
     circleId: "circle-1",
@@ -321,7 +318,10 @@ export const hostKits: HostKit[] = [
 ];
 
 export function todayKey(date = new Date()): string {
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 export function createInitialState(): AppState {
@@ -339,7 +339,6 @@ export function createInitialState(): AppState {
     ratings: [],
     settings: {
       personalizationEnabled: true,
-      digest: "termine",
     },
     flash: null,
     sawHomeHint: true,
@@ -367,7 +366,7 @@ export function getUserById(id: string, current?: User): User {
 
 export function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "KP";
+  if (parts.length === 0) return "?";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }

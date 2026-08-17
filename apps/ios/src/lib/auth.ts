@@ -49,12 +49,6 @@ export async function getSession() {
   return { session: data.session, error: null };
 }
 
-export async function getUser() {
-  const { data, error } = await supabase.auth.getUser();
-  if (error) return { user: null, error };
-  return { user: data.user, error: null };
-}
-
 function parseAuthLink(value: string): { tokenHash: string; type: EmailOtpType } | null {
   const match = value.match(/https?:\/\/\S+/);
   if (!match) return null;

@@ -1,31 +1,31 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-
-import { leaveCircleScreen, normalizeParam, parseOrigin } from "@/src/navigation";
 
 import { AfterEveningCard } from "@/src/components/AfterEveningCard";
 import { SeasonBar } from "@/src/components/CircleCard";
 import { Atmosphere } from "@/src/components/glass";
+import { FormatGuideCard } from "@/src/components/FormatGuideCard";
 import { MeetupCard } from "@/src/components/MeetupCard";
 import { MomentFeed } from "@/src/components/MomentFeed";
 import { ScheduleNextCard } from "@/src/components/ScheduleNextCard";
 import { Avatar, Body, Button, Card, EmptyState, Kicker, SegmentedControl, Title } from "@/src/components/ui";
-import { FormatGuideCard } from "@/src/components/FormatGuideCard";
-import { formatIcons, formatLabels, resolveFormat } from "@/src/domain/copy";
+import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
+import { formatLine } from "@/src/domain/copy";
 import { getUserById } from "@/src/domain/data";
 import {
   attendedMeetup,
   explainCircle,
   lastEndedMeetupForCircle,
   openSeatsLabel,
+  seasonLine,
   upcomingMeetupForCircle,
 } from "@/src/domain/matching";
-import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
+import { leaveCircleScreen, normalizeParam, parseOrigin } from "@/src/navigation";
 import { useApp } from "@/src/state/store";
-import { colors, space } from "@/src/theme/tokens";
+import { colors, space, type } from "@/src/theme/tokens";
 
 type Tab = "treffen" | "momente" | "info";
 
@@ -40,17 +40,17 @@ export default function CircleDetailScreen() {
   const tabPad = useTabScrollPadding();
   const leaving = useRef(false);
 
-  function goToOrigin() {
-    if (leaving.current) return;
-    leaving.current = true;
-    leaveCircleScreen(origin);
-  }
-
   const circle = state.circles.find((item) => item.id === id);
   const isMember = Boolean(circle && state.joinedCircleIds.includes(circle.id));
   const isHost = Boolean(circle && circle.hostId === state.currentUser.id);
 
-  function leaveCircle() {
+  const goToOrigin = useCallback(() => {
+    if (leaving.current) return;
+    leaving.current = true;
+    leaveCircleScreen(origin);
+  }, [origin]);
+
+  const leaveCircle = useCallback(() => {
     if (!circle) return;
     if (isHost) {
       Alert.alert(
@@ -75,9 +75,9 @@ export default function CircleDetailScreen() {
         },
       ],
     );
-  }
+  }, [circle, dispatch, goToOrigin, isHost]);
 
-  function openMore() {
+  const openMore = useCallback(() => {
     if (!circle) return;
     Alert.alert(circle.name, undefined, [
       ...(isMember && !isHost
@@ -89,7 +89,7 @@ export default function CircleDetailScreen() {
       },
       { text: "Abbrechen", style: "cancel" },
     ]);
-  }
+  }, [circle, isHost, isMember, leaveCircle]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -113,13 +113,13 @@ export default function CircleDetailScreen() {
           hitSlop={12}
           accessibilityRole="button"
           accessibilityLabel="Mehr Aktionen"
-          style={{ minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" }}
+          style={styles.moreHit}
         >
           <Ionicons name="ellipsis-horizontal" size={22} color={colors.ink} />
         </Pressable>
       ),
     });
-  }, [circle?.name, origin, navigation]);
+  }, [circle?.name, goToOrigin, navigation, openMore]);
 
   useEffect(() => {
     const sub = navigation.addListener("beforeRemove", (event) => {
@@ -128,7 +128,7 @@ export default function CircleDetailScreen() {
       goToOrigin();
     });
     return sub;
-  }, [navigation, origin]);
+  }, [goToOrigin, navigation, origin]);
 
   if (!circle) {
     return (
@@ -168,18 +168,13 @@ export default function CircleDetailScreen() {
           showsVerticalScrollIndicator={false}
         >
           <Card tone="strong">
-            <Kicker>
-              {formatIcons[resolveFormat(circle.format)]} {formatLabels[resolveFormat(circle.format)]} · {circle.neighborhood}
-            </Kicker>
+            <Kicker>{formatLine(circle.format, circle.neighborhood)}</Kicker>
             <Body muted style={styles.meta}>
               {isHost ? "Du führst diesen Kreis" : `Gastgeber:in ${circle.hostName}`}
             </Body>
             <Body style={styles.seats}>{openSeatsLabel(circle)}</Body>
             <Body muted style={styles.season}>
-              Woche {circle.season.weekNumber} von {circle.season.totalWeeks}
-              {Math.max(0, circle.season.totalWeeks - circle.season.weekNumber) > 0
-                ? ` · noch ${circle.season.totalWeeks - circle.season.weekNumber} Treffen`
-                : " · letzte Woche dieser Saison"}
+              {seasonLine(circle.season, true)}
             </Body>
             <Body muted style={styles.ritual}>Als Nächstes: {circle.season.ritual}</Body>
             <SeasonBar week={circle.season.weekNumber} total={circle.season.totalWeeks} />
@@ -234,7 +229,7 @@ export default function CircleDetailScreen() {
                   onRate={(wouldRepeat) =>
                     dispatch({
                       type: "RATE_MEETUP",
-                      rating: { meetupId: lastEnded.id, wouldRepeat, feltSafe: true },
+                      rating: { meetupId: lastEnded.id, wouldRepeat },
                     })
                   }
                 />
@@ -291,7 +286,7 @@ export default function CircleDetailScreen() {
                 {members.map((member) => (
                   <View key={member.id} style={styles.member}>
                     <Avatar initials={member.initials} />
-                    <View style={{ flex: 1 }}>
+                    <View style={styles.memberCopy}>
                       <Body style={styles.memberName}>{member.name}</Body>
                       <Body muted style={styles.meta}>{member.intention.bio}</Body>
                     </View>
@@ -309,7 +304,7 @@ export default function CircleDetailScreen() {
                 </Card>
               )}
               {isMember && !isHost && (
-                <Button label="Kreis verlassen" variant="secondary" onPress={leaveCircle} />
+                <Button label="Kreis verlassen" variant="danger" onPress={leaveCircle} />
               )}
               {isMember && (
                 <Button
@@ -331,11 +326,13 @@ const styles = StyleSheet.create({
   content: { padding: space.lg, gap: space.md },
   ritual: { marginTop: 4, marginBottom: 10 },
   seats: { marginTop: space.xs, fontWeight: "600" },
-  season: { marginTop: 6, fontSize: 13, lineHeight: 17 },
+  season: { marginTop: 6, ...type.caption },
   meta: { marginTop: 6 },
   blockTitle: { marginBottom: 6 },
   member: { flexDirection: "row", gap: 10, alignItems: "center", marginTop: 10 },
+  memberCopy: { flex: 1 },
   memberName: { fontWeight: "600" },
+  moreHit: { minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" },
   backHit: {
     flexDirection: "row",
     alignItems: "center",

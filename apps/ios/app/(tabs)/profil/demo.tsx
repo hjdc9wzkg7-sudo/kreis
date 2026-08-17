@@ -1,20 +1,13 @@
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
-import { Atmosphere } from "@/src/components/glass";
+import { StackScreen } from "@/src/components/Screen";
 import { Body, Card, SectionLabel, Title } from "@/src/components/ui";
-import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
 import { demoLines, privacyBody, testFlightChecks, v1Can, v1Not } from "@/src/domain/legal";
-import { colors, space } from "@/src/theme/tokens";
+import { colors } from "@/src/theme/tokens";
 
 export default function DemoInfoScreen() {
-  const tabPad = useTabScrollPadding();
-
   return (
-    <Atmosphere>
-      <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: tabPad }]}
-        contentInsetAdjustmentBehavior="automatic"
-      >
+    <StackScreen>
         <Title>Diese Demo</Title>
         {demoLines.map((line) => (
           <Body key={line} muted style={styles.line}>
@@ -57,13 +50,11 @@ export default function DemoInfoScreen() {
             </Body>
           ))}
         </Card>
-      </ScrollView>
-    </Atmosphere>
+    </StackScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { padding: space.lg, gap: 10 },
   line: { marginBottom: 6 },
   item: { marginBottom: 8, color: colors.ink },
 });

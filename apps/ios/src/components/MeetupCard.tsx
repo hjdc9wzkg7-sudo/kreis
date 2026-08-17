@@ -10,7 +10,8 @@ import {
   hasMeetupStarted,
 } from "../domain/matching";
 import type { Meetup, RsvpStatus } from "../domain/types";
-import { colors, space } from "../theme/tokens";
+import { useApp } from "../state/store";
+import { colors, space, type } from "../theme/tokens";
 import { PressableScale } from "./motion";
 import { AvatarGroup, Body, Button, Card, Kicker, Title } from "./ui";
 import { useReduceMotion } from "./useReduceMotion";
@@ -32,6 +33,7 @@ export function MeetupCard({
   onSetAttendance?: (userId: string, status: "here" | "no_show") => void;
   onEdit?: () => void;
 }) {
+  const { state } = useApp();
   const myRsvp = meetup.rsvps[currentUserId] ?? "pending";
   const attending = Object.entries(meetup.rsvps).filter(([, status]) => status === "yes");
   const here = Object.entries(meetup.attendance ?? {}).filter(([, status]) => status === "here");
@@ -41,6 +43,7 @@ export function MeetupCard({
   const dateStr = formatMeetupDate(meetup.date, meetup.time);
   const when = daysUntil(meetup);
   const confirmed = myRsvp === "yes";
+  const lookup = (id: string) => getUserById(id, state.currentUser);
 
   return (
     <Card>
@@ -53,18 +56,18 @@ export function MeetupCard({
         {dateStr} · {meetup.time} Uhr
       </Body>
 
-      <LocationBlock revealed={confirmed} location={meetup.location} />
+      <LocationBlock revealed={confirmed} location={meetup.location} hint={meetup.locationHint} />
 
       <View style={styles.row}>
         <AvatarGroup
           initials={attending
-            .map(([id]) => getUserById(id)?.initials)
-            .filter((value): value is string => Boolean(value))}
+            .map(([id]) => lookup(id).initials)
+            .filter(Boolean)}
         />
         <Body muted style={styles.hint}>
           {attending.length === 0
             ? "Noch niemand fest zugesagt"
-            : `${attending.map(([id]) => getUserById(id)?.name ?? "Mitglied").join(", ")}`}
+            : attending.map(([id]) => lookup(id).name).join(", ")}
           {started ? ` · ${here.length} wirklich da` : ""}
         </Body>
       </View>
@@ -78,14 +81,14 @@ export function MeetupCard({
             onPress={() => onRsvp("yes")}
           />
           <View style={styles.actions}>
-            <View style={{ flex: 1 }}>
+            <View style={styles.actionHalf}>
               <Button
                 label="Vielleicht"
                 variant={myRsvp === "maybe" ? "secondary" : "ghost"}
                 onPress={() => onRsvp("maybe")}
               />
             </View>
-            <View style={{ flex: 1 }}>
+            <View style={styles.actionHalf}>
               <Button
                 label="Absagen"
                 variant={myRsvp === "no" ? "secondary" : "ghost"}
@@ -106,24 +109,24 @@ export function MeetupCard({
       )}
 
       {started && myRsvp === "yes" && !iAmHere && onCheckIn && (
-        <Button label="Ich bin da" haptic="success" onPress={onCheckIn} style={{ marginTop: space.md }} />
+        <Button label="Ich bin da" haptic="success" onPress={onCheckIn} style={styles.checkIn} />
       )}
       {iAmHere && (
         <Body style={styles.here}>Du bist als da markiert.</Body>
       )}
 
       {isHost && !ended && onEdit && (
-        <Button label="Termin ändern" variant="ghost" onPress={onEdit} style={{ marginTop: space.xs }} />
+        <Button label="Termin ändern" variant="ghost" onPress={onEdit} style={styles.edit} />
       )}
 
       {isHost && started && (
         <View style={styles.hostList} accessibilityRole="summary">
           <Title style={styles.hostTitle}>Wer war wirklich da?</Title>
           <Body muted style={styles.hint}>
-            Tippe den Namen: einmal = da, nochmal = nicht gekommen.
+            Markiere für jede zugesagte Person, ob sie da war.
           </Body>
           {attending.map(([userId]) => {
-            const user = getUserById(userId);
+            const user = lookup(userId);
             const present = meetup.attendance?.[userId] === "here";
             const missed = meetup.attendance?.[userId] === "no_show";
             const name = user?.name ?? "Mitglied";
@@ -158,7 +161,15 @@ export function MeetupCard({
   );
 }
 
-function LocationBlock({ revealed, location }: { revealed: boolean; location: string }) {
+function LocationBlock({
+  revealed,
+  location,
+  hint,
+}: {
+  revealed: boolean;
+  location: string;
+  hint: string;
+}) {
   const reduce = useReduceMotion();
   const seen = useRef(revealed);
   const justOpened = revealed && !seen.current && !reduce;
@@ -183,7 +194,7 @@ function LocationBlock({ revealed, location }: { revealed: boolean; location: st
     <View style={styles.place}>
       <Body style={styles.placeText}>Ort siehst du nach der Zusage</Body>
       <Body muted style={styles.hint}>
-        So bleibt der Treffpunkt nur bei der echten Runde.
+        {hint}
       </Body>
     </View>
   );
@@ -203,11 +214,14 @@ const styles = StyleSheet.create({
   },
   placeLabel: { color: colors.sage, marginBottom: 4 },
   placeText: { fontWeight: "600" },
-  hint: { marginTop: 4, fontSize: 13, lineHeight: 17, fontWeight: "500" },
+  hint: { marginTop: 4, ...type.caption },
   row: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: space.md },
   actionsCol: { marginTop: space.lg, gap: space.xs },
   actions: { flexDirection: "row", gap: space.xs },
-  stand: { marginTop: 4, color: colors.coral, fontSize: 13, lineHeight: 17 },
+  actionHalf: { flex: 1 },
+  checkIn: { marginTop: space.md },
+  edit: { marginTop: space.xs },
+  stand: { marginTop: 4, color: colors.coral, ...type.caption },
   here: { marginTop: space.sm, color: colors.sage, fontWeight: "600" },
   hostList: { marginTop: space.md, gap: 10 },
   hostTitle: { marginBottom: 4 },

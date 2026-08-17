@@ -1,10 +1,11 @@
 import { StyleSheet, View } from "react-native";
 
-import { formatIcons, formatLabels, resolveFormat } from "../domain/copy";
+import { formatLine } from "../domain/copy";
 import { getUserById } from "../domain/data";
-import { openSeatsLabel } from "../domain/matching";
+import { openSeatsLabel, seasonLine } from "../domain/matching";
 import type { Circle } from "../domain/types";
-import { colors, space } from "../theme/tokens";
+import { useApp } from "../state/store";
+import { colors, motion, space, type } from "../theme/tokens";
 import { PressableScale } from "./motion";
 import { AvatarGroup, Body, Button, Card, Kicker, Title } from "./ui";
 
@@ -38,8 +39,9 @@ export function CircleCard({
   currentUserId?: string;
   delay?: number;
 }) {
+  const { state } = useApp();
   const members = circle.memberIds
-    .map((id) => getUserById(id).initials)
+    .map((id) => getUserById(id, state.currentUser).initials)
     .filter(Boolean);
   const why = reasons?.[0];
   const hasActions = Boolean(onJoin || onSkip);
@@ -47,9 +49,7 @@ export function CircleCard({
 
   const info = (
     <>
-      <Kicker>
-        {formatIcons[resolveFormat(circle.format)]} {formatLabels[resolveFormat(circle.format)]} · {circle.neighborhood}
-      </Kicker>
+      <Kicker>{formatLine(circle.format, circle.neighborhood)}</Kicker>
       <Title style={styles.name}>{circle.name}</Title>
       <Body muted style={styles.body} numberOfLines={2}>
         {circle.description}
@@ -62,10 +62,7 @@ export function CircleCard({
         <Body style={styles.hostMark}>Du führst diesen Kreis</Body>
       ) : null}
       <Body muted style={styles.season}>
-        Woche {circle.season.weekNumber} von {circle.season.totalWeeks}
-        {Math.max(0, circle.season.totalWeeks - circle.season.weekNumber) > 0
-          ? ` · noch ${circle.season.totalWeeks - circle.season.weekNumber}`
-          : " · letzte Woche"}
+        {seasonLine(circle.season)}
       </Body>
       {why ? <Body style={styles.why}>{why}</Body> : null}
     </>
@@ -77,7 +74,7 @@ export function CircleCard({
         <PressableScale
           onPress={onPress}
           haptic="light"
-          pressedScale={0.985}
+          pressedScale={motion.cardScale}
           accessibilityLabel={circle.name}
         >
           {info}
@@ -99,10 +96,10 @@ const styles = StyleSheet.create({
   name: { marginTop: 6 },
   body: { marginTop: space.sm },
   meta: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: space.md },
-  metaText: { flex: 1, fontSize: 13, lineHeight: 17, fontWeight: "500" },
-  hostMark: { color: colors.sage, fontWeight: "600", marginTop: 10, fontSize: 13, lineHeight: 17 },
-  season: { marginTop: 6, fontSize: 13, lineHeight: 17 },
-  why: { color: colors.coral, marginTop: 6, fontSize: 13, lineHeight: 17, fontWeight: "500" },
+  metaText: { flex: 1, ...type.caption },
+  hostMark: { color: colors.sage, fontWeight: "600", marginTop: 10, ...type.caption },
+  season: { marginTop: 6, ...type.caption },
+  why: { color: colors.coral, marginTop: 6, ...type.caption },
   track: {
     height: 6,
     backgroundColor: "rgba(36,31,28,0.08)",

@@ -16,7 +16,7 @@ export const unstable_settings = {
 };
 
 function Gate() {
-  const { hydrated, state } = useApp();
+  const { hydrated } = useApp();
   const { ready } = useAuth();
 
   if (!hydrated || !ready) {
@@ -30,7 +30,7 @@ function Gate() {
   return (
     <>
       <StatusBar style="dark" />
-      {state.flash ? <FlashBanner /> : null}
+      <FlashBanner />
       <Stack
         screenOptions={{
           headerShadowVisible: false,

@@ -26,7 +26,7 @@ export function guideFor(value: string | undefined): FormatGuide {
   return formatGuides[resolveFormat(value)];
 }
 
-export const formatGuides: Record<FormatType, FormatGuide> = {
+const formatGuides: Record<FormatType, FormatGuide> = {
   kochen: {
     id: "kochen",
     label: "Gemeinsam kochen",
@@ -95,23 +95,19 @@ export const formatGuides: Record<FormatType, FormatGuide> = {
   },
 };
 
-export const formatLabels: Record<FormatType, string> = {
-  kochen: formatGuides.kochen.label,
-  stadtrundgang: formatGuides.stadtrundgang.label,
-  bewegung: formatGuides.bewegung.label,
-  cafe: formatGuides.cafe.label,
-  sprache: formatGuides.sprache.label,
-  kreativ: formatGuides.kreativ.label,
-};
+function mapGuides<K extends "label" | "icon">(key: K): Record<FormatType, FormatGuide[K]> {
+  return Object.fromEntries(
+    (Object.keys(formatGuides) as FormatType[]).map((id) => [id, formatGuides[id][key]]),
+  ) as Record<FormatType, FormatGuide[K]>;
+}
 
-export const formatIcons: Record<FormatType, string> = {
-  kochen: formatGuides.kochen.icon,
-  stadtrundgang: formatGuides.stadtrundgang.icon,
-  bewegung: formatGuides.bewegung.icon,
-  cafe: formatGuides.cafe.icon,
-  sprache: formatGuides.sprache.icon,
-  kreativ: formatGuides.kreativ.icon,
-};
+export const formatLabels = mapGuides("label");
+export const formatIcons = mapGuides("icon");
+
+export function formatLine(format: string | undefined, neighborhood: string): string {
+  const id = resolveFormat(format);
+  return `${formatIcons[id]} ${formatLabels[id]} · ${neighborhood}`;
+}
 
 export const paceLabels: Record<SocialPace, string> = {
   still: "Eher still",
@@ -140,9 +136,8 @@ export const neighborhoods = [
   "Charlottenburg",
 ] as const;
 
-export const languages = ["Deutsch", "Deutsch, Englisch", "Englisch"] as const;
-
 export const MAX_DAILY_SUGGESTIONS = 3;
+export const LOCATION_HINT = "Genauer Treffpunkt wird erst nach deiner Zusage sichtbar.";
 export const CURRENT_USER_ID = "user-me";
 
 export const safetyLines = [

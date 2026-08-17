@@ -1,29 +1,27 @@
 import { router, type Href } from "expo-router";
-import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
+import { Alert, StyleSheet, Switch, TextInput, View } from "react-native";
 
-import { Atmosphere } from "@/src/components/glass";
-import { Button, Card, Chip, SectionLabel, fieldStyle } from "@/src/components/ui";
 import { FormatGuideCard } from "@/src/components/FormatGuideCard";
+import { StackScreen } from "@/src/components/Screen";
+import { Body, Button, Card, ChoiceChips, SectionLabel, fieldStyle } from "@/src/components/ui";
 import {
   availabilityLabels,
   formatLabels,
   neighborhoods,
   paceHints,
   paceLabels,
-  safetyLines,
 } from "@/src/domain/copy";
 import { intentionPace } from "@/src/domain/matching";
 import type { Availability, FormatType, SocialPace } from "@/src/domain/types";
-import { useTabScrollPadding } from "@/src/components/useTabScrollPadding";
 import { signOut } from "@/src/lib/auth";
 import { useApp, useResetDemo } from "@/src/state/store";
-import { colors, space, type } from "@/src/theme/tokens";
+import { colors } from "@/src/theme/tokens";
 
 export default function SettingsScreen() {
   const { state, dispatch } = useApp();
   const reset = useResetDemo();
   const { intention } = state.currentUser;
-  const tabPad = useTabScrollPadding();
+  const pace = intentionPace(state.currentUser);
 
   function toggleFormat(format: FormatType) {
     const formats = intention.formats.includes(format)
@@ -33,179 +31,149 @@ export default function SettingsScreen() {
   }
 
   return (
-    <Atmosphere>
-      <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: tabPad }]}
-        contentInsetAdjustmentBehavior="automatic"
-        showsVerticalScrollIndicator={false}
-      >
-        <Card>
-          <Text style={styles.switchTitle}>Geschlossene Demo</Text>
-          <Text style={styles.meta}>
-            Kein Konto, keine anderen echten Leute. Daten nur auf diesem iPhone.
-          </Text>
-          <Button
-            label="Demo & Datenschutz"
-            variant="secondary"
-            onPress={() => router.push("/(tabs)/profil/demo" as Href)}
-            style={{ marginTop: 12 }}
-          />
-        </Card>
-
-        <Text style={styles.lead}>
-          Hier stellst du ein, welche Einladungen zu dir passen.
-        </Text>
-
-        <SectionLabel>Name</SectionLabel>
-        <TextInput
-          value={state.currentUser.name}
-          onChangeText={(name) => dispatch({ type: "UPDATE_NAME", name })}
-          style={styles.input}
+    <StackScreen>
+      <Card>
+        <Body style={styles.switchTitle}>Geschlossene Demo</Body>
+        <Body muted>Kein Konto, keine anderen echten Leute. Daten nur auf diesem iPhone.</Body>
+        <Button
+          label="Demo & Datenschutz"
+          variant="secondary"
+          onPress={() => router.push("/(tabs)/profil/demo" as Href)}
+          style={styles.afterCopy}
         />
+      </Card>
 
-        <SectionLabel>Wie kommst du an?</SectionLabel>
-        <View style={styles.wrap}>
-          {(Object.keys(paceLabels) as SocialPace[]).map((item) => (
-            <Chip
-              key={item}
-              label={paceLabels[item]}
-              selected={intentionPace(state.currentUser) === item}
-              onPress={() => dispatch({ type: "UPDATE_INTENTION", intention: { pace: item } })}
-            />
-          ))}
-        </View>
-        <Text style={styles.meta}>{paceHints[intentionPace(state.currentUser)]}</Text>
+      <Body muted>Hier stellst du ein, welche Einladungen zu dir passen.</Body>
 
-        <SectionLabel>Wann passt's?</SectionLabel>
-        <View style={styles.wrap}>
-          {(Object.keys(availabilityLabels) as Availability[]).map((item) => (
-            <Chip
-              key={item}
-              label={availabilityLabels[item]}
-              selected={intention.availability === item}
-              onPress={() => dispatch({ type: "UPDATE_INTENTION", intention: { availability: item } })}
-            />
-          ))}
-        </View>
+      <SectionLabel>Name</SectionLabel>
+      <TextInput
+        value={state.currentUser.name}
+        onChangeText={(name) => dispatch({ type: "UPDATE_NAME", name })}
+        style={fieldStyle}
+        accessibilityLabel="Name"
+      />
 
-        <SectionLabel>Womit startest du?</SectionLabel>
-        <View style={styles.wrap}>
-          {(Object.keys(formatLabels) as FormatType[]).map((format) => (
-            <Chip
-              key={format}
-              label={formatLabels[format]}
-              selected={intention.formats.includes(format)}
-              onPress={() => toggleFormat(format)}
-            />
-          ))}
-        </View>
-        {intention.formats[0] && <FormatGuideCard format={intention.formats[0]} />}
+      <SectionLabel>Wie kommst du an?</SectionLabel>
+      <ChoiceChips
+        options={(Object.keys(paceLabels) as SocialPace[]).map((item) => ({
+          key: item,
+          label: paceLabels[item],
+        }))}
+        selected={(item) => pace === item}
+        onSelect={(item) => dispatch({ type: "UPDATE_INTENTION", intention: { pace: item } })}
+      />
+      <Body muted>{paceHints[pace]}</Body>
 
-        <SectionLabel>Gegend</SectionLabel>
-        <View style={styles.wrap}>
-          {neighborhoods.map((item) => (
-            <Chip
-              key={item}
-              label={item}
-              selected={intention.neighborhood === item}
-              onPress={() => dispatch({ type: "UPDATE_INTENTION", intention: { neighborhood: item } })}
-            />
-          ))}
-        </View>
+      <SectionLabel>Wann passt's?</SectionLabel>
+      <ChoiceChips
+        options={(Object.keys(availabilityLabels) as Availability[]).map((item) => ({
+          key: item,
+          label: availabilityLabels[item],
+        }))}
+        selected={(item) => intention.availability === item}
+        onSelect={(item) => dispatch({ type: "UPDATE_INTENTION", intention: { availability: item } })}
+      />
 
-        <SectionLabel>Über dich</SectionLabel>
-        <TextInput
-          value={intention.bio}
-          onChangeText={(bio) => dispatch({ type: "UPDATE_INTENTION", intention: { bio } })}
-          style={styles.area}
-          multiline
-        />
+      <SectionLabel>Womit startest du?</SectionLabel>
+      <ChoiceChips
+        options={(Object.keys(formatLabels) as FormatType[]).map((format) => ({
+          key: format,
+          label: formatLabels[format],
+        }))}
+        selected={(format) => intention.formats.includes(format)}
+        onSelect={toggleFormat}
+      />
+      {intention.formats[0] ? <FormatGuideCard format={intention.formats[0]} /> : null}
 
-        <Card>
-          <View style={styles.switchRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.switchTitle}>Einladungen an mich anpassen</Text>
-              <Text style={styles.meta}>
-                Dann siehst du zuerst Kreise, die zu Ort, Zeit und Format passen — mit einem klaren Grund.
-              </Text>
-            </View>
-            <Switch
-              value={state.settings.personalizationEnabled}
-              onValueChange={(enabled) => dispatch({ type: "SET_PERSONALIZATION", enabled })}
-              trackColor={{ true: colors.sage, false: colors.sand }}
-            />
+      <SectionLabel>Gegend</SectionLabel>
+      <ChoiceChips
+        options={neighborhoods.map((item) => ({ key: item, label: item }))}
+        selected={(item) => intention.neighborhood === item}
+        onSelect={(item) => dispatch({ type: "UPDATE_INTENTION", intention: { neighborhood: item } })}
+      />
+
+      <SectionLabel>Über dich</SectionLabel>
+      <TextInput
+        value={intention.bio}
+        onChangeText={(bio) => dispatch({ type: "UPDATE_INTENTION", intention: { bio } })}
+        style={styles.area}
+        multiline
+        accessibilityLabel="Über dich"
+      />
+
+      <Card>
+        <View style={styles.switchRow}>
+          <View style={styles.switchCopy}>
+            <Body style={styles.switchTitle}>Einladungen an mich anpassen</Body>
+            <Body muted>
+              Dann siehst du zuerst Kreise, die zu Ort, Zeit und Format passen — mit einem klaren Grund.
+            </Body>
           </View>
-        </Card>
+          <Switch
+            value={state.settings.personalizationEnabled}
+            onValueChange={(enabled) => dispatch({ type: "SET_PERSONALIZATION", enabled })}
+            trackColor={{ true: colors.sage, false: colors.sand }}
+          />
+        </View>
+      </Card>
 
-        <Card>
-          <Text style={styles.switchTitle}>So bleiben wir sicher</Text>
-          {safetyLines.map((line) => (
-            <Text key={line} style={styles.meta}>
-              · {line}
-            </Text>
-          ))}
-        </Card>
-
-        <Button
-          label="Checklisten für den Abend"
-          variant="secondary"
-          onPress={() => router.push("/(tabs)/profil/host-kits" as Href)}
-        />
-        <Button
-          label="Personalisierung zurücksetzen"
-          variant="ghost"
-          onPress={() => dispatch({ type: "RESET_PERSONALIZATION" })}
-        />
-        <Button
-          label="Abmelden"
-          variant="secondary"
-          onPress={() =>
-            Alert.alert("Abmelden?", "Du kannst dich jederzeit wieder mit deiner E-Mail anmelden.", [
-              { text: "Abbrechen", style: "cancel" },
-              {
-                text: "Abmelden",
-                style: "destructive",
-                onPress: () => {
-                  void signOut().then(() => router.replace("/login"));
-                },
+      <Button
+        label="Sicherheit"
+        variant="secondary"
+        onPress={() => router.push("/(tabs)/profil/sicherheit" as Href)}
+      />
+      <Button
+        label="Checklisten für den Abend"
+        variant="secondary"
+        onPress={() => router.push("/(tabs)/profil/host-kits" as Href)}
+      />
+      <Button
+        label="Personalisierung zurücksetzen"
+        variant="ghost"
+        onPress={() => dispatch({ type: "RESET_PERSONALIZATION" })}
+      />
+      <Button
+        label="Abmelden"
+        variant="secondary"
+        onPress={() =>
+          Alert.alert("Abmelden?", "Du kannst dich jederzeit wieder mit deiner E-Mail anmelden.", [
+            { text: "Abbrechen", style: "cancel" },
+            {
+              text: "Abmelden",
+              style: "destructive",
+              onPress: () => {
+                void signOut().then(() => router.replace("/login"));
               },
-            ])
-          }
-        />
-        <Button
-          label="Demo zurücksetzen"
-          variant="ghost"
-          onPress={() =>
-            Alert.alert(
-              "Demo zurücksetzen?",
-              "Name, Zusagen und Texte auf diesem iPhone gehen verloren. Die Beispiel-Kreise sind wieder da.",
-              [
-                { text: "Abbrechen", style: "cancel" },
-                { text: "Zurücksetzen", style: "destructive", onPress: () => void reset() },
-              ],
-            )
-          }
-        />
-      </ScrollView>
-    </Atmosphere>
+            },
+          ])
+        }
+      />
+      <Button
+        label="Demo zurücksetzen"
+        variant="danger"
+        onPress={() =>
+          Alert.alert(
+            "Demo zurücksetzen?",
+            "Name, Zusagen und Texte auf diesem iPhone gehen verloren. Die Beispiel-Kreise sind wieder da.",
+            [
+              { text: "Abbrechen", style: "cancel" },
+              { text: "Zurücksetzen", style: "destructive", onPress: () => void reset() },
+            ],
+          )
+        }
+      />
+    </StackScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { padding: space.lg, gap: space.sm },
-  lead: { ...type.body, color: colors.muted, marginBottom: 8 },
-  wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 6 },
-  input: {
-    ...fieldStyle,
-    marginBottom: space.xs,
-  },
+  afterCopy: { marginTop: 12 },
   area: {
     ...fieldStyle,
     minHeight: 90,
     textAlignVertical: "top",
-    marginBottom: space.xs,
   },
   switchRow: { flexDirection: "row", gap: 12, alignItems: "center" },
-  switchTitle: { ...type.callout, color: colors.ink, marginBottom: 4 },
-  meta: { ...type.caption, color: colors.muted },
+  switchCopy: { flex: 1 },
+  switchTitle: { fontWeight: "600", marginBottom: 4 },
 });

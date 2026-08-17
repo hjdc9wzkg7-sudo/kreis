@@ -92,10 +92,9 @@ export function GlassSurface({
   const fill =
     tone === "strong" ? colors.glassStrong : tone === "soft" ? colors.glassSoft : colors.glass;
   const nativeStyle = tone === "soft" ? "clear" : "regular";
-  const tint = tone === "strong" ? colors.cream : colors.cream;
 
   const content = (
-    <View style={[padded && styles.pad, style]} pointerEvents="box-none">
+    <View style={padded ? styles.pad : undefined} pointerEvents="box-none">
       {children}
     </View>
   );
@@ -104,7 +103,7 @@ export function GlassSurface({
     return (
       <GlassView
         glassEffectStyle={nativeStyle}
-        tintColor={tint}
+        tintColor={colors.cream}
         style={[styles.clip, style]}
       >
         {content}

@@ -1,11 +1,12 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { Atmosphere } from "@/src/components/glass";
-import { Button, Card, Chip } from "@/src/components/ui";
+import { Body, Button, Card, Chip, Title } from "@/src/components/ui";
+import { normalizeParam } from "@/src/navigation";
 import { useApp } from "@/src/state/store";
-import { colors, space } from "@/src/theme/tokens";
+import { space } from "@/src/theme/tokens";
 
 const reasons = [
   "Unsicheres Verhalten",
@@ -16,7 +17,8 @@ const reasons = [
 ];
 
 export default function ReportScreen() {
-  const { circleId } = useLocalSearchParams<{ circleId: string }>();
+  const params = useLocalSearchParams<{ circleId?: string | string[] }>();
+  const circleId = normalizeParam(params.circleId);
   const { dispatch } = useApp();
   const [reason, setReason] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -27,14 +29,14 @@ export default function ReportScreen() {
         <Card>
           {done ? (
             <>
-              <Text style={styles.title}>Danke. Wir prüfen das intern.</Text>
-              <Text style={styles.body}>Die Meldung bleibt privat.</Text>
-              <Button label="Schließen" onPress={() => router.back()} style={{ marginTop: 16 }} />
+              <Title style={styles.title}>Danke. Wir prüfen das intern.</Title>
+              <Body muted style={styles.body}>Die Meldung bleibt privat.</Body>
+              <Button label="Schließen" onPress={() => router.back()} style={styles.close} />
             </>
           ) : (
             <>
-              <Text style={styles.title}>Kreis melden</Text>
-              <Text style={styles.body}>Wähle den Grund. Es gibt keine öffentliche Anzeige.</Text>
+              <Title style={styles.title}>Kreis melden</Title>
+              <Body muted style={styles.body}>Wähle den Grund. Es gibt keine öffentliche Anzeige.</Body>
               <View style={styles.wrap}>
                 {reasons.map((item) => (
                   <Chip key={item} label={item} selected={reason === item} onPress={() => setReason(item)} />
@@ -59,7 +61,8 @@ export default function ReportScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, padding: space.lg },
-  title: { fontSize: 22, fontWeight: "600", color: colors.ink, marginBottom: 8 },
-  body: { color: colors.muted, lineHeight: 21, marginBottom: 16 },
+  title: { marginBottom: 8 },
+  body: { marginBottom: 16 },
   wrap: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 20 },
+  close: { marginTop: 16 },
 });

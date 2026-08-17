@@ -50,7 +50,7 @@ export function Card({
 }) {
   return (
     <Enter delay={delay} style={style}>
-      <GlassSurface style={style} padded={padded} tone={tone}>
+      <GlassSurface padded={padded} tone={tone}>
         {children}
       </GlassSurface>
     </Enter>
@@ -141,29 +141,47 @@ export function Chip({
   label,
   selected,
   onPress,
-  tone = "clay",
 }: {
   label: string;
   selected?: boolean;
   onPress?: () => void;
-  tone?: "clay" | "sage";
 }) {
-  const selectedStyle = selected
-    ? tone === "sage"
-      ? styles.chipSage
-      : styles.chipClay
-    : styles.chipIdle;
   return (
     <PressableScale
       onPress={onPress}
       accessibilityLabel={label}
       accessibilityState={{ selected: Boolean(selected) }}
-      style={[styles.chip, selectedStyle]}
+      style={[styles.chip, selected ? styles.chipClay : styles.chipIdle]}
     >
       <AppText max={typeScale.ui} style={[styles.chipLabel, selected && { color: colors.white }]}>
         {label}
       </AppText>
     </PressableScale>
+  );
+}
+
+export function ChoiceChips<T extends string>({
+  options,
+  selected,
+  onSelect,
+  style,
+}: {
+  options: { key: T; label: string }[];
+  selected: (key: T) => boolean;
+  onSelect: (key: T) => void;
+  style?: StyleProp<ViewStyle>;
+}) {
+  return (
+    <View style={[styles.choiceWrap, style]}>
+      {options.map((option) => (
+        <Chip
+          key={option.key}
+          label={option.label}
+          selected={selected(option.key)}
+          onPress={() => onSelect(option.key)}
+        />
+      ))}
+    </View>
   );
 }
 
@@ -391,8 +409,8 @@ const styles = StyleSheet.create({
   },
   chipIdle: { backgroundColor: colors.glassSoft },
   chipClay: { backgroundColor: colors.coral },
-  chipSage: { backgroundColor: colors.sage },
   chipLabel: { ...type.callout, color: colors.muted },
+  choiceWrap: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   section: { ...type.caption, color: colors.muted, marginBottom: space.xs },
   kicker: { ...type.kicker, color: colors.muted },
   body: { ...type.body, color: colors.ink },

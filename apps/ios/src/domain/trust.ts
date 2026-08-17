@@ -1,4 +1,5 @@
-import type { AppState, Circle, FormatType } from "./types";
+import { getJoinedCircles, hostedCircles as hostedCirclesOf } from "./matching";
+import type { AppState, Circle } from "./types";
 
 export interface TrustMark {
   id: string;
@@ -10,21 +11,16 @@ export interface TrustMark {
 export interface Reputation {
   confirmedMeetups: number;
   hostedSeasons: number;
-  wouldRepeatCount: number;
   reliabilityPercent: number | null;
   marks: TrustMark[];
   hostedCircles: Circle[];
   guestCircles: Circle[];
-  formats: FormatType[];
 }
 
 export function getReputation(state: AppState): Reputation {
   const userId = state.currentUser.id;
-  const hostedCircles = state.circles.filter((circle) => circle.hostId === userId);
-  const guestCircles = state.circles.filter(
-    (circle) =>
-      state.joinedCircleIds.includes(circle.id) && circle.hostId !== userId
-  );
+  const hostedCircles = hostedCirclesOf(state);
+  const guestCircles = getJoinedCircles(state).filter((circle) => circle.hostId !== userId);
 
   const myRsvps = state.meetups.flatMap((meetup) => {
     const status = meetup.rsvps[userId];
@@ -79,11 +75,9 @@ export function getReputation(state: AppState): Reputation {
   return {
     confirmedMeetups,
     hostedSeasons: hostedCircles.length,
-    wouldRepeatCount,
     reliabilityPercent,
     marks,
     hostedCircles,
     guestCircles,
-    formats: state.currentUser.intention.formats,
   };
 }

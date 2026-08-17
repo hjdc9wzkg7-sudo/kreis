@@ -1,10 +1,8 @@
 export type SocialPace = "still" | "locker" | "schwung";
-export type EnergyLevel = SocialPace;
 export type Availability = "wochentags" | "wochenende" | "flexibel";
 export type FormatType = "kochen" | "stadtrundgang" | "bewegung" | "cafe" | "sprache" | "kreativ";
 export type RsvpStatus = "pending" | "yes" | "no" | "maybe";
 export type AttendanceStatus = "here" | "no_show";
-export type DigestPreference = "termine" | "woechentlich" | "aus";
 export type MomentType = "photo" | "voice" | "text";
 
 export interface UserIntention {
@@ -69,7 +67,6 @@ export interface Circle {
   memberIds: string[];
   maxMembers: number;
   season: Season;
-  nextMeetupId: string;
   hostName: string;
   hostId: string;
 }
@@ -89,7 +86,6 @@ export interface HostKit {
 export interface MeetupRating {
   meetupId: string;
   wouldRepeat: boolean;
-  feltSafe: boolean;
 }
 
 export interface Report {
@@ -101,7 +97,6 @@ export interface Report {
 
 export interface AppSettings {
   personalizationEnabled: boolean;
-  digest: DigestPreference;
 }
 
 export interface AppState {
@@ -136,7 +131,6 @@ export type AppAction =
   | { type: "DISMISS_CIRCLE"; circleId: string }
   | { type: "REPORT_CIRCLE"; circleId: string; reason: string }
   | { type: "RATE_MEETUP"; rating: MeetupRating }
-  | { type: "SET_DIGEST"; digest: DigestPreference }
   | { type: "SET_PERSONALIZATION"; enabled: boolean }
   | { type: "RESET_PERSONALIZATION" }
   | { type: "CLEAR_FLASH" }

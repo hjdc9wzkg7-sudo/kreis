@@ -1,5 +1,6 @@
 import { MAX_DAILY_SUGGESTIONS, formatLabels, resolveFormat } from "./copy";
-import type { AppState, Circle, Meetup, User } from "./types";
+import { todayKey } from "./data";
+import type { AppState, Circle, Meetup, Season, User } from "./types";
 
 export interface ExplainedSuggestion {
   circle: Circle;
@@ -45,57 +46,58 @@ export function getJoinedCircles(state: AppState): Circle[] {
   return state.circles.filter((circle) => state.joinedCircleIds.includes(circle.id));
 }
 
+function openCircles(state: AppState): Circle[] {
+  return state.circles.filter(
+    (circle) =>
+      !state.joinedCircleIds.includes(circle.id) &&
+      !state.dismissedCircleIds.includes(circle.id) &&
+      circle.memberIds.length < circle.maxMembers,
+  );
+}
+
 export function getDailySuggestions(state: AppState): ExplainedSuggestion[] {
+  const open = openCircles(state);
   if (!state.settings.personalizationEnabled) {
-    return state.circles
-      .filter(
-        (circle) =>
-          !state.joinedCircleIds.includes(circle.id) &&
-          !state.dismissedCircleIds.includes(circle.id) &&
-          circle.memberIds.length < circle.maxMembers
-      )
-      .slice(0, MAX_DAILY_SUGGESTIONS)
-      .map((circle) => ({
-        circle,
-        score: 0,
-        reasons: [`In ${circle.neighborhood}`],
-      }));
+    return open.slice(0, MAX_DAILY_SUGGESTIONS).map((circle) => ({
+      circle,
+      score: 0,
+      reasons: [`In ${circle.neighborhood}`],
+    }));
   }
 
-  return state.circles
-    .filter(
-      (circle) =>
-        !state.joinedCircleIds.includes(circle.id) &&
-        !state.dismissedCircleIds.includes(circle.id) &&
-        circle.memberIds.length < circle.maxMembers
-    )
+  return open
     .map((circle) => explainCircle(state.currentUser, circle))
     .sort((a, b) => b.score - a.score)
     .slice(0, MAX_DAILY_SUGGESTIONS);
 }
 
-export function nextMeetupFor(state: AppState) {
-  const joined = getJoinedCircles(state);
-  const meetups = joined
-    .map((circle) => ({
-      circle,
-      meetup: upcomingMeetupForCircle(state, circle.id),
-    }))
-    .filter((item): item is { circle: Circle; meetup: Meetup } => Boolean(item.meetup))
-    .sort((a, b) => meetupStart(a.meetup).getTime() - meetupStart(b.meetup).getTime());
-  return meetups[0];
+type CircleMeetup = { circle: Circle; meetup: Meetup };
+
+function earliestByStart(items: CircleMeetup[]): CircleMeetup | undefined {
+  return items.slice().sort((a, b) => meetupStart(a.meetup).getTime() - meetupStart(b.meetup).getTime())[0];
 }
 
-export function lastEndedMeetupFor(state: AppState) {
-  const joined = getJoinedCircles(state);
-  const meetups = joined
-    .flatMap((circle) =>
+function latestByEnd(items: CircleMeetup[]): CircleMeetup | undefined {
+  return items.slice().sort((a, b) => meetupEnd(b.meetup).getTime() - meetupEnd(a.meetup).getTime())[0];
+}
+
+function nextMeetupFor(state: AppState) {
+  return earliestByStart(
+    getJoinedCircles(state).flatMap((circle) => {
+      const meetup = upcomingMeetupForCircle(state, circle.id);
+      return meetup ? [{ circle, meetup }] : [];
+    }),
+  );
+}
+
+function lastEndedMeetupFor(state: AppState) {
+  return latestByEnd(
+    getJoinedCircles(state).flatMap((circle) =>
       state.meetups
         .filter((meetup) => meetup.circleId === circle.id && hasMeetupEnded(meetup))
-        .map((meetup) => ({ circle, meetup }))
-    )
-    .sort((a, b) => meetupEnd(b.meetup).getTime() - meetupEnd(a.meetup).getTime());
-  return meetups[0];
+        .map((meetup) => ({ circle, meetup })),
+    ),
+  );
 }
 
 export function upcomingMeetupForCircle(state: AppState, circleId: string): Meetup | undefined {
@@ -114,21 +116,19 @@ export function attendedMeetup(meetup: Meetup, userId: string): boolean {
   return meetup.rsvps[userId] === "yes" || meetup.attendance?.[userId] === "here";
 }
 
-export function isMeetupRated(state: AppState, meetupId: string): boolean {
+function isMeetupRated(state: AppState, meetupId: string): boolean {
   return state.ratings.some((item) => item.meetupId === meetupId);
 }
 
-export function lastEndedAttendedFor(state: AppState) {
+function lastEndedAttendedFor(state: AppState) {
   const userId = state.currentUser.id;
-  const joined = getJoinedCircles(state);
-  const meetups = joined
-    .flatMap((circle) =>
+  return latestByEnd(
+    getJoinedCircles(state).flatMap((circle) =>
       state.meetups
         .filter((meetup) => meetup.circleId === circle.id && hasMeetupEnded(meetup) && attendedMeetup(meetup, userId))
-        .map((meetup) => ({ circle, meetup }))
-    )
-    .sort((a, b) => meetupEnd(b.meetup).getTime() - meetupEnd(a.meetup).getTime());
-  return meetups[0];
+        .map((meetup) => ({ circle, meetup })),
+    ),
+  );
 }
 
 export function hostedCircles(state: AppState): Circle[] {
@@ -157,14 +157,14 @@ export function homePhase(state: AppState): HomePhase {
   }
 
   const last = lastEndedMeetupFor(state);
-  const suggestion = getDailySuggestions(state)[0];
-  if (suggestion) {
-    return { kind: "invite", suggestion, last };
-  }
-
   const hostGap = hostedCircleNeedingSchedule(state);
   if (hostGap) {
     return { kind: "schedule", circle: hostGap, last: lastEndedMeetupForCircle(state, hostGap.id) };
+  }
+
+  const suggestion = getDailySuggestions(state)[0];
+  if (suggestion) {
+    return { kind: "invite", suggestion, last };
   }
 
   if (last && !upcomingMeetupForCircle(state, last.circle.id)) {
@@ -174,13 +174,10 @@ export function homePhase(state: AppState): HomePhase {
   return { kind: "pause" };
 }
 
-export function addDaysIso(days: number, from = new Date()): string {
+function addDaysIso(days: number, from = new Date()): string {
   const value = new Date(from);
   value.setDate(value.getDate() + days);
-  const year = value.getFullYear();
-  const month = String(value.getMonth() + 1).padStart(2, "0");
-  const day = String(value.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return todayKey(value);
 }
 
 export function upcomingDayOptions(count = 8, from = new Date()): { date: string; label: string }[] {
@@ -211,13 +208,25 @@ export function hasMeetupEnded(meetup: Meetup, now = new Date()): boolean {
   return now >= meetupEnd(meetup);
 }
 
+function startOfLocalDay(date: Date): number {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+}
+
 export function daysUntil(meetup: Meetup, now = new Date()): string {
-  const start = meetupStart(meetup);
-  const diff = Math.round((start.getTime() - now.getTime()) / 86_400_000);
+  const diff = Math.round((startOfLocalDay(meetupStart(meetup)) - startOfLocalDay(now)) / 86_400_000);
   if (diff < 0) return "war schon";
   if (diff === 0) return "heute";
   if (diff === 1) return "morgen";
   return `in ${diff} Tagen`;
+}
+
+export function seasonLine(season: Season, long = false): string {
+  const remaining = Math.max(0, season.totalWeeks - season.weekNumber);
+  const base = `Woche ${season.weekNumber} von ${season.totalWeeks}`;
+  if (remaining > 0) {
+    return long ? `${base} · noch ${remaining} Treffen` : `${base} · noch ${remaining}`;
+  }
+  return long ? `${base} · letzte Woche dieser Saison` : `${base} · letzte Woche`;
 }
 
 export function formatMeetupDate(date: string, time: string): string {

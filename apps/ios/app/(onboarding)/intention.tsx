@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { FormatGuideCard } from "@/src/components/FormatGuideCard";
 import { Atmosphere } from "@/src/components/glass";
-import { Body, Button, Chip, ProgressDots, Title, fieldStyle } from "@/src/components/ui";
+import { Body, Button, ChoiceChips, ProgressDots, Title, fieldStyle } from "@/src/components/ui";
 import {
   availabilityLabels,
   formatLabels,
@@ -82,16 +82,15 @@ export default function IntentionScreen() {
             <>
               <Title>Wie kommst du in einer neuen Runde an?</Title>
               <Body muted>Damit wir dir keine zu laute oder zu stille Gruppe vorschlagen.</Body>
-              <View style={styles.wrap}>
-                {(Object.keys(paceLabels) as SocialPace[]).map((item) => (
-                  <Chip
-                    key={item}
-                    label={paceLabels[item]}
-                    selected={pace === item}
-                    onPress={() => setIntention((value) => ({ ...value, pace: item }))}
-                  />
-                ))}
-              </View>
+              <ChoiceChips
+                options={(Object.keys(paceLabels) as SocialPace[]).map((item) => ({
+                  key: item,
+                  label: paceLabels[item],
+                }))}
+                selected={(item) => pace === item}
+                onSelect={(item) => setIntention((value) => ({ ...value, pace: item }))}
+                style={styles.wrap}
+              />
               {pace && <Body>{paceHints[pace]}</Body>}
             </>
           )}
@@ -100,26 +99,21 @@ export default function IntentionScreen() {
             <>
               <Title>Wann und wo passt's?</Title>
               <Body muted>Unter der Woche, Wochenende — und in welchem Kiez.</Body>
-              <View style={styles.wrap}>
-                {(Object.keys(availabilityLabels) as Availability[]).map((item) => (
-                  <Chip
-                    key={item}
-                    label={availabilityLabels[item]}
-                    selected={intention.availability === item}
-                    onPress={() => setIntention((value) => ({ ...value, availability: item }))}
-                  />
-                ))}
-              </View>
-              <View style={styles.wrap}>
-                {neighborhoods.map((item) => (
-                  <Chip
-                    key={item}
-                    label={item}
-                    selected={intention.neighborhood === item}
-                    onPress={() => setIntention((value) => ({ ...value, neighborhood: item }))}
-                  />
-                ))}
-              </View>
+              <ChoiceChips
+                options={(Object.keys(availabilityLabels) as Availability[]).map((item) => ({
+                  key: item,
+                  label: availabilityLabels[item],
+                }))}
+                selected={(item) => intention.availability === item}
+                onSelect={(item) => setIntention((value) => ({ ...value, availability: item }))}
+                style={styles.wrap}
+              />
+              <ChoiceChips
+                options={neighborhoods.map((item) => ({ key: item, label: item }))}
+                selected={(item) => intention.neighborhood === item}
+                onSelect={(item) => setIntention((value) => ({ ...value, neighborhood: item }))}
+                style={styles.wrap}
+              />
             </>
           )}
 
@@ -127,24 +121,21 @@ export default function IntentionScreen() {
             <>
               <Title>Womit willst du starten?</Title>
               <Body muted>Tippe ein Format an — du siehst sofort, was dich erwartet.</Body>
-              <View style={styles.wrap}>
-                {(Object.keys(formatLabels) as FormatType[]).map((format) => (
-                  <Chip
-                    key={format}
-                    label={formatLabels[format]}
-                    selected={intention.formats.includes(format)}
-                    onPress={() => toggleFormat(format)}
-                  />
-                ))}
-              </View>
+              <ChoiceChips
+                options={(Object.keys(formatLabels) as FormatType[]).map((format) => ({
+                  key: format,
+                  label: formatLabels[format],
+                }))}
+                selected={(format) => intention.formats.includes(format)}
+                onSelect={toggleFormat}
+                style={styles.wrap}
+              />
               {openFormat && <FormatGuideCard format={openFormat} />}
             </>
           )}
-
-
         </ScrollView>
 
-        <View style={{ gap: 8 }}>
+        <View style={styles.actions}>
           <Button
             label={step === steps.length - 1 ? "Meinen Kreis finden" : "Weiter"}
             disabled={!canContinue}
@@ -160,7 +151,8 @@ export default function IntentionScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, padding: space.lg, justifyContent: "space-between", paddingBottom: 28 },
   main: { paddingVertical: 20, gap: 14 },
-  wrap: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 8 },
+  wrap: { marginTop: 8 },
+  actions: { gap: 8 },
   input: {
     ...fieldStyle,
     marginTop: space.xs,
